@@ -1,0 +1,131 @@
+---
+title: "CARPS Reproducibility Report"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+#### Article ID: [CARPS_1-6-2014_PS]
+#### Pilot 1: [Tysen Dauer]
+#### Co-pilot: [Erik Santoro and Jaclyn Schwartz]
+#### Start date: [October 26, 2017]
+#### End date: [Insert end date - use US format]   
+
+-------
+
+#### Methods summary: 
+[Write a brief summary of the methods underlying the target outcomes written in your own words]
+
+------
+
+#### Target outcomes: 
+[For this article you should focus on the findings reported for Study 1 in section "Laptop versus longhand performance".
+
+Specifically, you should attempt to reproduce all descriptive and inferential analyses reported in the text below and associated tables/figures:
+
+> Laptop versus longhand performance. Mixed fixed and
+random-effects analyses of variance were used to
+test differences, with note-taking medium (laptop vs.
+longhand) as a fixed effect and lecture (which talk was
+viewed) as a random effect. We converted the raw data
+to z scores because the lecture assessments varied in difficulty
+and number of points available; however, results
+did not differ when raw scores were analyzed.4 On factual-
+recall questions, participants performed equally well
+across conditions (laptop: M = 0.021, SD = 1.31; longhand:
+M = 0.009, SD = 1.02), F(1, 55) = 0.014, p = .91.
+However, on conceptual-application questions, laptop
+participants performed significantly worse (M = −0.156,
+SD = 0.915) than longhand participants (M = 0.154, SD =
+1.08), F(1, 55) = 9.99, p = .03, ηp2 = .13 (see Fig. 1).5
+Which lecture participants saw also affected performance
+on conceptual-application questions, F(4, 55) = 12.52,
+p = .02, ηp2 = .16; however, there was no significant
+interaction between lecture and note-taking medium,
+F(4, 55) = 0.164, p = .96.
+
+**Note**
+Make sure to use the original article for additional context and information about any necessary pre-processing steps. Also check for additional supplementary materials that may provide supporting documentation for analysis procedures.]  
+
+------
+
+[The chunk below sets up some formatting options for the R Markdown document]
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE, warning=FALSE, message=FALSE)
+```
+
+## Step 1: Load packages
+
+[Some useful packages are being loaded below. You can add any additional ones you might need too.]
+
+```{r}
+library(tidyverse) # for data munging
+library(knitr) # for kable table formating
+library(haven) # import and export 'SPSS', 'Stata' and 'SAS' Files
+library(readxl) # import excel files
+library(CARPSreports) # custom report functions
+```
+
+## Step 2: Load data
+
+```{r}
+```
+
+## Step 3: Tidy data
+
+```{r}
+```
+
+## Step 4: Run analysis
+
+### Pre-processing
+
+[you can remove this section if no pre-processing is required]
+
+```{r}
+```
+
+### Descriptive statistics
+
+```{r}
+```
+
+### Inferential statistics
+
+```{r}
+```
+
+## Step 5: Conclusion
+
+[Include the carpsReport function below]
+
+```{r}
+# You can delete this commented text for your report, it is here to serve as a guide.
+# Use the carpsReport() function in this code chunk.
+# Here is a guide to the arguments you should include in the function:
+# Report_Type: Enter 'pilot' or 'final'
+# Article_ID: Enter the article's unique ID code
+# Insufficient_Information_Errors: Enter the number of Insufficient Information Errors
+# Decision_Errors Enter: the number of decision errors
+# Major_Numerical_Errors: Enter the number of major numerical errors
+# Time_to_Complete: Enter the estimated time to complete the report in minutes
+# Author_Assistance: Enter whether author assistance was required (TRUE/FALSE)
+# FOR EXAMPLE:
+# carpsReport(Report_Type = "pilot", 
+#             Article_ID = "ABhgyo", 
+#             Insufficient_Information_Errors = 0, 
+#             Decision_Errors = 1, 
+#             Major_Numerical_Errors = 4, 
+#             Time_to_Complete = 120, 
+#             Author_Assistance = TRUE)
+```
+
+[Please also include a brief text summary describing your findings. If this reproducibility check was a failure, you should note any suggestions as to what you think the likely cause(s) might be.]
+
+[This function will output information about the package versions used in this report:]
+
+```{r session_info, include=TRUE, echo=TRUE, results='markup'}
+devtools::session_info()
+```
