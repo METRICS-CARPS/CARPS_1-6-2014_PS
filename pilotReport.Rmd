@@ -71,11 +71,15 @@ library(CARPSreports) # custom report functions
 ## Step 2: Load data
 
 ```{r}
+# Link to the guidelines: http://rpubs.com/tommetascience/CARPS
+data <- read_spss("/Users/tysendauer/Documents/GitHub/CARPS_1-6-2014_PS/data/Study_1_Upload_Data.sav")
 ```
 
 ## Step 3: Tidy data
 
 ```{r}
+# I need to get "condition" split into two columns, 0 (laptop) and 1 (longhand)?
+# http://r4ds.had.co.nz/tidy-data.html
 ```
 
 ## Step 4: Run analysis
@@ -90,11 +94,17 @@ library(CARPSreports) # custom report functions
 ### Descriptive statistics
 
 ```{r}
+means <- data %>%
+  
 ```
 
 ### Inferential statistics
 
 ```{r}
+# on partial eta squared: https://en.wikiversity.org/wiki/Eta-squared
+# on mixed effect ANOVA in R: http://www.page-gould.com/r/anova/
+# and another on mixed effect ANOVA in R: http://conjugateprior.org/2013/01/formulae-in-r-anova/
+# on ANOVA as statistic: http://proquest.safaribooksonline.com/book/statistics/9781449361129/8dot-introduction-to-regression-and-anova/analysis_of_variance_open_parenthesis_an_html#X2ludGVybmFsX0h0bWxWaWV3P3htbGlkPTk3ODE0NDkzNjExMjklMkZmYWN0b3JpYWxfYW5vdmFfaHRtbCZxdWVyeT10JTIwdGVzdA==
 ```
 
 ## Step 5: Conclusion
