@@ -79,6 +79,7 @@ data <- read_spss("/Users/tysendauer/Documents/GitHub/CARPS_1-6-2014_PS/data/Stu
 
 ```{r}
 # I need to get "condition" split into two columns, 0 (laptop) and 1 (longhand)?
+# I just used group_by and it seems to have worked.
 # http://r4ds.had.co.nz/tidy-data.html
 ```
 
@@ -94,17 +95,40 @@ data <- read_spss("/Users/tysendauer/Documents/GitHub/CARPS_1-6-2014_PS/data/Stu
 ### Descriptive statistics
 
 ```{r}
+# Standard deviation of sdObj is off. I get 0.9965552 and they report 1.31.
 means <- data %>%
+  group_by(condition) %>%
+  summarize(meanObj = mean(objectiveZ), meanOpen = mean(openZ), sdObj = sd(objectiveZ), sdOpen = sd(openZ))
   
 ```
 
 ### Inferential statistics
 
 ```{r}
+# Deal with only Factual-recall questions (objectiveZ)
+aovFactual <- aov(condition~objectiveZ, data=data)
+summary(aovFactual)
+
+
 # on partial eta squared: https://en.wikiversity.org/wiki/Eta-squared
 # on mixed effect ANOVA in R: http://www.page-gould.com/r/anova/
 # and another on mixed effect ANOVA in R: http://conjugateprior.org/2013/01/formulae-in-r-anova/
 # on ANOVA as statistic: http://proquest.safaribooksonline.com/book/statistics/9781449361129/8dot-introduction-to-regression-and-anova/analysis_of_variance_open_parenthesis_an_html#X2ludGVybmFsX0h0bWxWaWV3P3htbGlkPTk3ODE0NDkzNjExMjklMkZmYWN0b3JpYWxfYW5vdmFfaHRtbCZxdWVyeT10JTIwdGVzdA==
+```
+
+```{r}
+# Deal with only Conceptual-application questions (openZ)
+aovConceptual <- aov(openZ ~ condition, data=data)
+summary(aov)
+```
+```{r}
+# Lecture (whichtalk) affects performance on conceptual-application questions (openZ).
+aovLecture <- aov(openZ ~ whichtalk, data=data)
+summary(aovLecture)
+```
+
+```{r}
+# Interaction between lecture (whichtalk) and note-taking medium (condition)
 ```
 
 ## Step 5: Conclusion
