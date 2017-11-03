@@ -75,12 +75,17 @@ library(CARPSreports) # custom report functions
 data <- read_spss("/Users/tysendauer/Documents/GitHub/CARPS_1-6-2014_PS/data/Study_1_Upload_Data.sav")
 ```
 
+```{r}
+# If condition needs to be numeric (rather than atomic as it was in the read .sav file)
+# data$condition <- as.numeric(data$condition)
+```
+
+
 ## Step 3: Tidy data
 
 ```{r}
-# I need to get "condition" split into two columns, 0 (laptop) and 1 (longhand)?
-# I just used group_by and it seems to have worked.
-# http://r4ds.had.co.nz/tidy-data.html
+# If I need to have objectiveZ and openZ together as Qtype
+# data.test <- gather(data, "Qtype","Qscore", objectiveZ, openZ)
 ```
 
 ## Step 4: Run analysis
@@ -106,18 +111,37 @@ means <- data %>%
 
 ```{r}
 # Deal with only Factual-recall questions (objectiveZ)
-aovFactual <- aov(condition~objectiveZ, data=data)
-summary(aovFactual)
+library(car)
+library(lme4)
+library(Matrix)
+library(lmerTest)
 
+#RM with random effects
 
-# on partial eta squared: https://en.wikiversity.org/wiki/Eta-squared
-# on mixed effect ANOVA in R: http://www.page-gould.com/r/anova/
-# and another on mixed effect ANOVA in R: http://conjugateprior.org/2013/01/formulae-in-r-anova/
-# on ANOVA as statistic: http://proquest.safaribooksonline.com/book/statistics/9781449361129/8dot-introduction-to-regression-and-anova/analysis_of_variance_open_parenthesis_an_html#X2ludGVybmFsX0h0bWxWaWV3P3htbGlkPTk3ODE0NDkzNjExMjklMkZmYWN0b3JpYWxfYW5vdmFfaHRtbCZxdWVyeT10JTIwdGVzdA==
+model = lmer(objectiveZ ~ condition + (1|whichtalk),
+           data = data)
+summary(model)
+Anova(model, type = "II")
+```
+```{r}
+# Deals with Conceptual quesions (openZ).
+model = lmer(openZ ~ condition + (1|whichtalk),
+           data = data)
+summary(model)
+Anova(model, type = "II")
 ```
 
 ```{r}
-# Deal with only Conceptual-application questions (openZ)
+# Alternative which did not work.
+aov(objectiveZ ~ condition + Error(whichtalk/condition), data=data)
+```
+```{r}
+# Alternatives which did not work.
+aov(openZ ~ condition + Error(whichtalk/condition, data=data)
+```
+
+```{r}
+# An alternative attempt to deal with only Conceptual-application questions (openZ). Incorrect. 
 aovConceptual <- aov(openZ ~ condition, data=data)
 summary(aov)
 ```
