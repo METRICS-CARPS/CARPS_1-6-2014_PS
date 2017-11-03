@@ -100,7 +100,7 @@ data <- read_spss("/Users/tysendauer/Documents/GitHub/CARPS_1-6-2014_PS/data/Stu
 ### Descriptive statistics
 
 ```{r}
-# Standard deviation of sdObj is off. I get 0.9965552 and they report 1.31.
+# Standard deviation of sdObj is off. I get 0.9965552 and they report 1.31. Otherwise these numbers are correct.
 means <- data %>%
   group_by(condition) %>%
   summarize(meanObj = mean(objectiveZ), meanOpen = mean(openZ), sdObj = sd(objectiveZ), sdOpen = sd(openZ))
@@ -110,26 +110,53 @@ means <- data %>%
 ### Inferential statistics
 
 ```{r}
-# Deal with only Factual-recall questions (objectiveZ)
+# Libraries needed for ANOVA tests.
 library(car)
 library(lme4)
 library(Matrix)
 library(lmerTest)
+```
 
+```{r}
 #RM with random effects
+# Deal with only Factual-recall questions (objectiveZ). 
+# In the paper they got F(1,55) = 0.014, p =.91
+# This gets close for the p-value: .952 (here, and below, the degrees of freedom are always higher than the paper's 55). The results also do not seem to include F-values.
 
 model = lmer(objectiveZ ~ condition + (1|whichtalk),
            data = data)
 summary(model)
 Anova(model, type = "II")
 ```
+
 ```{r}
-# Deals with Conceptual quesions (openZ).
+# Same as above (Factual = objectiveZ), with type="III". The results look identical to when type = "II".
+model = lmer(objectiveZ ~ condition + (1|whichtalk),
+           data = data)
+summary(model)
+Anova(model, type = "III")
+```
+
+
+
+```{r}
+# Deals with Conceptual quesions (openZ). Here is the code with type = "II". 
+# In the paper they get F(1, 55) = 9.99, p = .03
 model = lmer(openZ ~ condition + (1|whichtalk),
            data = data)
 summary(model)
 Anova(model, type = "II")
 ```
+
+```{r}
+# Same as above: testing Conceptual, this time with type = "III". This produced different, but still incorrect results. The results are also the same as when type = "II".
+# In the paper they get F(1, 55) = 9.99, p = .03
+model = lmer(openZ ~ condition + (1|whichtalk),
+           data = data)
+summary(model)
+Anova(model, type = "III")
+```
+
 
 ```{r}
 # Alternative which did not work.
