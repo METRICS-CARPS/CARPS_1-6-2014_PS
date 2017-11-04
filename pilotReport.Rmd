@@ -10,17 +10,24 @@ output:
 #### Pilot 1: [Tysen Dauer]
 #### Co-pilot: [Erik Santoro and Jaclyn Schwartz]
 #### Start date: [October 26, 2017]
-#### End date: [Insert end date - use US format]   
+#### End date: [November 4, 2017]   
 
 -------
 
 #### Methods summary: 
-[Write a brief summary of the methods underlying the target outcomes written in your own words]
+The authors report converting the raw data to z scores before listing the ANOVA results from 4 tests: 
+1. Factual-recall questions by condition (laptop or longhand),
+2. Conceptual-application questions by condition,
+3. Conceptual-application affected by lecture (labelled "whichtalk" in the data), and 
+4. Interaction between lecture and note-taking medium (labelled "condition" in the data).
+All of these ANOVAs were mixed fiexed- and random-effects ANOVAs according to the article.
+
+Before reproducing the ANOVAs, I reproduced the means and standard deviations reported for the raw and z scored data. 
 
 ------
 
 #### Target outcomes: 
-[For this article you should focus on the findings reported for Study 1 in section "Laptop versus longhand performance".
+For this article you should focus on the findings reported for Study 1 in section "Laptop versus longhand performance".
 
 Specifically, you should attempt to reproduce all descriptive and inferential analyses reported in the text below and associated tables/figures:
 
@@ -46,7 +53,7 @@ interaction between lecture and note-taking medium,
 F(4, 55) = 0.164, p = .96.
 
 **Note**
-Make sure to use the original article for additional context and information about any necessary pre-processing steps. Also check for additional supplementary materials that may provide supporting documentation for analysis procedures.]  
+Make sure to use the original article for additional context and information about any necessary pre-processing steps. Also check for additional supplementary materials that may provide supporting documentation for analysis procedures. 
 
 ------
 
@@ -92,9 +99,8 @@ data <- read_spss("/Users/tysendauer/Documents/GitHub/CARPS_1-6-2014_PS/data/Stu
 
 ### Pre-processing
 
-[you can remove this section if no pre-processing is required]
-
 ```{r}
+# A note about nomenclature: in the paper the authors refer to Factual and Conceptual questions. In the data these items are labelled "objective" and "open", respectively. 
 ```
 
 ### Descriptive statistics
@@ -104,8 +110,70 @@ data <- read_spss("/Users/tysendauer/Documents/GitHub/CARPS_1-6-2014_PS/data/Stu
 means <- data %>%
   group_by(condition) %>%
   summarize(meanObj = mean(objectiveZ), meanOpen = mean(openZ), sdObj = sd(objectiveZ), sdOpen = sd(openZ))
-  
 ```
+
+```{r}
+# Recording error for standard deviation of Objective questions.
+compareValues(reportedValue = 1.31, obtainedValue = 0.9965552)
+```
+
+
+```{r}
+# I also found their reported Raw Means for Study 1 and calculated them for comparison (these raw numbers are reported in the "Supplemental Material" folder, the file is named *Raw_Means_and_Questions.pdf).
+raw.means <- data %>%
+  group_by(condition, whichtalk)%>%
+  summarize(mean.raw.objective = mean(rawobjective), sd.raw.objective = sd(rawobjective), mean.raw.open = mean(rawopen), sd.raw.open = sd(rawopen))
+
+# Here too I found some difference that might help unravel later discrepancies. They seem to have different data for the condition:laptop lectures on Islam and Algorithms. Here is a verbal description. Please find the recorded errors repeated formally below.
+
+# In Factual questions, they reported the following [raw scores and (standard deviations)]: 
+# condition (laptop (=0)), whichtalk (Islam) [6.33 (1.75)] 
+# where I find [5.83 (2.48)]. 
+# Also in Factual questions, they reported: 
+# condition (laptop), whichtalk (Algorithms) [4.17 (2.14)]
+# where I find [4.67 (1.86)].
+# 
+# The laptop condition lectures on Islam and Algorithms also differed in Conceptual questions:
+# for Islam they report [3.50 (1.22)]
+# where I got [3.33 (1.03)]
+# and for Algorithm they report [3.50 (1.05)]
+# where I got [3.67 (1.21)].
+# 
+# Maybe they removed some subjects at this stage that make the standard deviation off and throw the later ANOVAs?
+
+# There is mention in the "Study 1 Participants" section of the paper of removing two participants. Those excluded participants seem not to be included in their public data (they report 67 participants minus the 2 = 65 participants, the number in their public data). I found no other mention of excluded data or differently aggregated data in the paper or supplemental materials.
+```
+
+```{r}
+# Recording error for Factual Islam laptop mean and sd.
+compareValues(reportedValue = 6.33, obtainedValue = 5.83) # mean
+compareValues(reportedValue = 1.75, obtainedValue = 2.48) # sd
+```
+```{r}
+# Recording error for Factual Algorithm laptop mean and sd.
+compareValues(reportedValue = 4.17, obtainedValue = 4.67) # mean
+compareValues(reportedValue = 2.14, obtainedValue = 1.86) # sd
+
+```
+```{r}
+# Recording error for Conceptual Islam laptop mean and sd.
+compareValues(reportedValue = 3.5, obtainedValue = 3.33) # mean
+compareValues(reportedValue = 1.22, obtainedValue = 1.03) # sd
+```
+
+```{r}
+# Recording error for Conceptual Algorithm laptop mean and sd.
+compareValues(reportedValue = 3.5, obtainedValue = 3.67) # mean
+compareValues(reportedValue = 1.05, obtainedValue = 1.21) # sd
+```
+
+
+```{r echo=F, results= 'asis'}
+library(knitr)
+kable(raw.means, caption = "Here is the data as a table. Note that laptop = 0 under condition, Islam = 1 under whichtalk, and Algorithms = 5 under whichtalk.")
+
+```
+
 
 ### Inferential statistics
 
@@ -117,8 +185,9 @@ library(Matrix)
 library(lmerTest)
 ```
 
+I label these sections using the numbering in Methods summary, above. The labels "a," "b," etc., are various attempts to reproduce the reported results.
+1.a.
 ```{r}
-#RM with random effects
 # Deal with only Factual-recall questions (objectiveZ). 
 # In the paper they got F(1,55) = 0.014, p =.91
 # This gets close for the p-value: .952 (here, and below, the degrees of freedom are always higher than the paper's 55). The results also do not seem to include F-values.
@@ -128,7 +197,13 @@ model = lmer(objectiveZ ~ condition + (1|whichtalk),
 summary(model)
 Anova(model, type = "II")
 ```
+```{r}
+# Recording error for ANOVA p value.
+compareValues(reportedValue = .91, obtainedValue = .952, isP = T)
+```
 
+
+1.b.
 ```{r}
 # Same as above (Factual = objectiveZ), with type="III". The results look identical to when type = "II".
 model = lmer(objectiveZ ~ condition + (1|whichtalk),
@@ -136,9 +211,14 @@ model = lmer(objectiveZ ~ condition + (1|whichtalk),
 summary(model)
 Anova(model, type = "III")
 ```
+1.c.
+```{r}
+# Alternative which did not work.
+aovObj <- aov(objectiveZ ~ condition + Error(whichtalk/condition), data=data)
+summary(aovObj)
+```
 
-
-
+2.a.
 ```{r}
 # Deals with Conceptual quesions (openZ). Here is the code with type = "II". 
 # In the paper they get F(1, 55) = 9.99, p = .03
@@ -148,6 +228,7 @@ summary(model)
 Anova(model, type = "II")
 ```
 
+2.b.
 ```{r}
 # Same as above: testing Conceptual, this time with type = "III". This produced different, but still incorrect results. The results are also the same as when type = "II".
 # In the paper they get F(1, 55) = 9.99, p = .03
@@ -157,59 +238,44 @@ summary(model)
 Anova(model, type = "III")
 ```
 
-
-```{r}
-# Alternative which did not work.
-aov(objectiveZ ~ condition + Error(whichtalk/condition), data=data)
-```
+2.c.
 ```{r}
 # Alternatives which did not work.
-aov(openZ ~ condition + Error(whichtalk/condition, data=data)
+aovOp <- aov(openZ ~ condition + Error(whichtalk/condition), data=data)
+summary(aovOp)
 ```
 
+2.d.
 ```{r}
 # An alternative attempt to deal with only Conceptual-application questions (openZ). Incorrect. 
 aovConceptual <- aov(openZ ~ condition, data=data)
-summary(aov)
+summary(aovConceptual)
 ```
+
+3.
 ```{r}
 # Lecture (whichtalk) affects performance on conceptual-application questions (openZ).
 aovLecture <- aov(openZ ~ whichtalk, data=data)
 summary(aovLecture)
 ```
-
+4.
 ```{r}
-# Interaction between lecture (whichtalk) and note-taking medium (condition)
+# Interaction between lecture (whichtalk) and note-taking medium (condition). This could only be successful if the underlying Conceptual data is accurate, which it is not.
 ```
 
 ## Step 5: Conclusion
 
-[Include the carpsReport function below]
-
 ```{r}
-# You can delete this commented text for your report, it is here to serve as a guide.
-# Use the carpsReport() function in this code chunk.
-# Here is a guide to the arguments you should include in the function:
-# Report_Type: Enter 'pilot' or 'final'
-# Article_ID: Enter the article's unique ID code
-# Insufficient_Information_Errors: Enter the number of Insufficient Information Errors
-# Decision_Errors Enter: the number of decision errors
-# Major_Numerical_Errors: Enter the number of major numerical errors
-# Time_to_Complete: Enter the estimated time to complete the report in minutes
-# Author_Assistance: Enter whether author assistance was required (TRUE/FALSE)
-# FOR EXAMPLE:
-# carpsReport(Report_Type = "pilot", 
-#             Article_ID = "ABhgyo", 
-#             Insufficient_Information_Errors = 0, 
-#             Decision_Errors = 1, 
-#             Major_Numerical_Errors = 4, 
-#             Time_to_Complete = 120, 
-#             Author_Assistance = TRUE)
+carpsReport(Report_Type = "pilot",
+            Article_ID = "CARPS_1-6-2014_PS",
+            Insufficient_Information_Errors = 0,
+            Decision_Errors = 0,
+            Major_Numerical_Errors = 6,
+            Time_to_Complete = 510,
+            Author_Assistance = FALSE)
 ```
 
-[Please also include a brief text summary describing your findings. If this reproducibility check was a failure, you should note any suggestions as to what you think the likely cause(s) might be.]
-
-[This function will output information about the package versions used in this report:]
+The reported ANOVAs were the main findings. We encountered major errors already at the descriptive statistics stage. Hopefully these can be easily resolved by contacting the authors to find out what additional data processing, cleaning, or exclusions might be causing these differences. The innaccurate ANOVA findings recorded here (including the difference in reported degrees of freedom) may arise for the following reasons: the underlying data differences just described, incorrect R scripts for the ANOVAs reported in the article, or they may actually be different. The time to complete is possibly unusually long because I had not previously run mixed-effects ANOVAs and needed time and assistance implementing them in R. 
 
 ```{r session_info, include=TRUE, echo=TRUE, results='markup'}
 devtools::session_info()
