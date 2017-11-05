@@ -15,6 +15,8 @@ output:
 -------
 
 #### Methods summary: 
+Mueller et al. 2014 aimed to find out if note-taking medium (longhand or laptop) had an effect on participants' ability to correctly answer factual and conceptual questions. Study 1 asked 67 participants to watch one of five different lectures, perform distractor tasks, and then answer questions about the lecture they viewed. They found that note-taking medium had a significant effect on Conceptual answers but not on Factual answers.
+
 The authors report converting the raw data to z scores before listing the ANOVA results from 4 tests: 
 1. Factual-recall questions by condition (laptop or longhand),
 2. Conceptual-application questions by condition,
@@ -57,15 +59,11 @@ Make sure to use the original article for additional context and information abo
 
 ------
 
-[The chunk below sets up some formatting options for the R Markdown document]
-
 ```{r global_options, include=FALSE}
 knitr::opts_chunk$set(echo=TRUE, warning=FALSE, message=FALSE)
 ```
 
 ## Step 1: Load packages
-
-[Some useful packages are being loaded below. You can add any additional ones you might need too.]
 
 ```{r}
 library(tidyverse) # for data munging
@@ -79,7 +77,7 @@ library(CARPSreports) # custom report functions
 
 ```{r}
 # Link to the guidelines: http://rpubs.com/tommetascience/CARPS
-data <- read_spss("/Users/tysendauer/Documents/GitHub/CARPS_1-6-2014_PS/data/Study_1_Upload_Data.sav")
+data <- read_spss("data/Study_1_Upload_Data.sav")
 ```
 
 ```{r}
@@ -91,7 +89,7 @@ data <- read_spss("/Users/tysendauer/Documents/GitHub/CARPS_1-6-2014_PS/data/Stu
 ## Step 3: Tidy data
 
 ```{r}
-# If I need to have objectiveZ and openZ together as Qtype
+# I thought I might need to have objectiveZ and openZ together as Qtype. If that turns out to be the case, this is the code for that operation.
 # data.test <- gather(data, "Qtype","Qscore", objectiveZ, openZ)
 ```
 
@@ -123,26 +121,28 @@ compareValues(reportedValue = 1.31, obtainedValue = 0.9965552)
 raw.means <- data %>%
   group_by(condition, whichtalk)%>%
   summarize(mean.raw.objective = mean(rawobjective), sd.raw.objective = sd(rawobjective), mean.raw.open = mean(rawopen), sd.raw.open = sd(rawopen))
-
-# Here too I found some difference that might help unravel later discrepancies. They seem to have different data for the condition:laptop lectures on Islam and Algorithms. Here is a verbal description. Please find the recorded errors repeated formally below.
-
-# In Factual questions, they reported the following [raw scores and (standard deviations)]: 
-# condition (laptop (=0)), whichtalk (Islam) [6.33 (1.75)] 
-# where I find [5.83 (2.48)]. 
-# Also in Factual questions, they reported: 
-# condition (laptop), whichtalk (Algorithms) [4.17 (2.14)]
-# where I find [4.67 (1.86)].
-# 
-# The laptop condition lectures on Islam and Algorithms also differed in Conceptual questions:
-# for Islam they report [3.50 (1.22)]
-# where I got [3.33 (1.03)]
-# and for Algorithm they report [3.50 (1.05)]
-# where I got [3.67 (1.21)].
-# 
-# Maybe they removed some subjects at this stage that make the standard deviation off and throw the later ANOVAs?
-
-# There is mention in the "Study 1 Participants" section of the paper of removing two participants. Those excluded participants seem not to be included in their public data (they report 67 participants minus the 2 = 65 participants, the number in their public data). I found no other mention of excluded data or differently aggregated data in the paper or supplemental materials.
 ```
+
+Here too I found some difference that might help unravel later discrepancies. They seem to have different data for the condition:laptop lectures on Islam and Algorithms. Here is a verbal description. Please find the recorded errors repeated formally below.
+
+In Factual questions, they reported the following [raw scores and (standard deviations)]: 
+condition (laptop (=0)), whichtalk (Islam) [6.33 (1.75)] 
+where I find [5.83 (2.48)]. 
+Also in Factual questions, they reported: 
+condition (laptop), whichtalk (Algorithms) [4.17 (2.14)]
+where I find [4.67 (1.86)].
+ 
+The laptop condition lectures on Islam and Algorithms also differed in Conceptual questions:
+for Islam they report [3.50 (1.22)]
+where I got [3.33 (1.03)]
+and for Algorithm they report [3.50 (1.05)]
+where I got [3.67 (1.21)].
+
+Maybe they removed some subjects at this stage that make the standard deviation off and throw the later ANOVAs?
+
+There is mention in the "Study 1 Participants" section of the paper of removing two participants. Those excluded participants seem not to be included in their public data (they report 67 participants minus the 2 = 65 participants, the number in their public data). I found no other mention of excluded data or differently aggregated data in the paper or supplemental materials.
+
+I note the errors below but will not include them in the final count since they are not the Target Outcomes.
 
 ```{r}
 # Recording error for Factual Islam laptop mean and sd.
@@ -183,6 +183,7 @@ library(car)
 library(lme4)
 library(Matrix)
 library(lmerTest)
+library(lsr)
 ```
 
 I label these sections using the numbering in Methods summary, above. The labels "a," "b," etc., are various attempts to reproduce the reported results.
@@ -218,6 +219,20 @@ aovObj <- aov(objectiveZ ~ condition + Error(whichtalk/condition), data=data)
 summary(aovObj)
 ```
 
+1.d.
+```{r}
+# Another way of reporting the ANOVA, this one provides an F-value.
+model = lmer(objectiveZ ~ condition + (1|whichtalk),
+           data = data)
+summary(model)
+anova(model)
+```
+```{r}
+# Recording error for ANOVA F value.
+compareValues(reportedValue = .014, obtainedValue = .003)
+```
+
+
 2.a.
 ```{r}
 # Deals with Conceptual quesions (openZ). Here is the code with type = "II". 
@@ -252,6 +267,25 @@ aovConceptual <- aov(openZ ~ condition, data=data)
 summary(aovConceptual)
 ```
 
+2.e.
+```{r}
+# ANOVA run with F-value
+model = lmer(openZ ~ condition + (1|whichtalk),
+           data = data)
+summary(model)
+anova(model)
+```
+```{r}
+# Recording error for ANOVA F value.
+compareValues(reportedValue = 9.99, obtainedValue = 1.74)
+```
+
+```{r}
+# This was an attempt at investigating the eta squared value. I wa unable to get the function to work.
+# etaSquared(model, type = 2, anova = TRUE)
+```
+
+
 3.
 ```{r}
 # Lecture (whichtalk) affects performance on conceptual-application questions (openZ).
@@ -270,8 +304,8 @@ carpsReport(Report_Type = "pilot",
             Article_ID = "CARPS_1-6-2014_PS",
             Insufficient_Information_Errors = 0,
             Decision_Errors = 0,
-            Major_Numerical_Errors = 6,
-            Time_to_Complete = 510,
+            Major_Numerical_Errors = 3,
+            Time_to_Complete = 525,
             Author_Assistance = FALSE)
 ```
 

@@ -236,6 +236,7 @@ div.tocify {
 </div>
 <div id="methods-summary" class="section level4">
 <h4>Methods summary:</h4>
+<p>Subscript: H<sub>2</sub>O is a liquid. Superscript: 2<sup>10</sup> is 1024.</p>
 <p>The authors report converting the raw data to z scores before listing the ANOVA results from 4 tests: 1. Factual-recall questions by condition (laptop or longhand), 2. Conceptual-application questions by condition, 3. Conceptual-application affected by lecture (labelled “whichtalk” in the data), and 4. Interaction between lecture and note-taking medium (labelled “condition” in the data). All of these ANOVAs were mixed fiexed- and random-effects ANOVAs according to the article.</p>
 <p>Before reproducing the ANOVAs, I reproduced the means and standard deviations reported for the raw and z scored data.</p>
 <hr />
@@ -263,13 +264,13 @@ library(CARPSreports) # custom report functions</code></pre>
 <div id="step-2-load-data" class="section level2">
 <h2>Step 2: Load data</h2>
 <pre class="r"><code># Link to the guidelines: http://rpubs.com/tommetascience/CARPS
-data &lt;- read_spss(&quot;/Users/tysendauer/Documents/GitHub/CARPS_1-6-2014_PS/data/Study_1_Upload_Data.sav&quot;)</code></pre>
+data &lt;- read_spss(&quot;data/Study_1_Upload_Data.sav&quot;)</code></pre>
 <pre class="r"><code># If condition needs to be numeric (rather than atomic as it was in the read .sav file)
 # data$condition &lt;- as.numeric(data$condition)</code></pre>
 </div>
 <div id="step-3-tidy-data" class="section level2">
 <h2>Step 3: Tidy data</h2>
-<pre class="r"><code># If I need to have objectiveZ and openZ together as Qtype
+<pre class="r"><code># I thought I might need to have objectiveZ and openZ together as Qtype. If that turns out to be the case, this is the code for that operation.
 # data.test &lt;- gather(data, &quot;Qtype&quot;,&quot;Qscore&quot;, objectiveZ, openZ)</code></pre>
 </div>
 <div id="step-4-run-analysis" class="section level2">
@@ -290,26 +291,13 @@ compareValues(reportedValue = 1.31, obtainedValue = 0.9965552)</code></pre>
 <pre class="r"><code># I also found their reported Raw Means for Study 1 and calculated them for comparison (these raw numbers are reported in the &quot;Supplemental Material&quot; folder, the file is named *Raw_Means_and_Questions.pdf).
 raw.means &lt;- data %&gt;%
   group_by(condition, whichtalk)%&gt;%
-  summarize(mean.raw.objective = mean(rawobjective), sd.raw.objective = sd(rawobjective), mean.raw.open = mean(rawopen), sd.raw.open = sd(rawopen))
-
-# Here too I found some difference that might help unravel later discrepancies. They seem to have different data for the condition:laptop lectures on Islam and Algorithms. Here is a verbal description. Please find the recorded errors repeated formally below.
-
-# In Factual questions, they reported the following [raw scores and (standard deviations)]: 
-# condition (laptop (=0)), whichtalk (Islam) [6.33 (1.75)] 
-# where I find [5.83 (2.48)]. 
-# Also in Factual questions, they reported: 
-# condition (laptop), whichtalk (Algorithms) [4.17 (2.14)]
-# where I find [4.67 (1.86)].
-# 
-# The laptop condition lectures on Islam and Algorithms also differed in Conceptual questions:
-# for Islam they report [3.50 (1.22)]
-# where I got [3.33 (1.03)]
-# and for Algorithm they report [3.50 (1.05)]
-# where I got [3.67 (1.21)].
-# 
-# Maybe they removed some subjects at this stage that make the standard deviation off and throw the later ANOVAs?
-
-# There is mention in the &quot;Study 1 Participants&quot; section of the paper of removing two participants. Those excluded participants seem not to be included in their public data (they report 67 participants minus the 2 = 65 participants, the number in their public data). I found no other mention of excluded data or differently aggregated data in the paper or supplemental materials.</code></pre>
+  summarize(mean.raw.objective = mean(rawobjective), sd.raw.objective = sd(rawobjective), mean.raw.open = mean(rawopen), sd.raw.open = sd(rawopen))</code></pre>
+<p>Here too I found some difference that might help unravel later discrepancies. They seem to have different data for the condition:laptop lectures on Islam and Algorithms. Here is a verbal description. Please find the recorded errors repeated formally below.</p>
+<p>In Factual questions, they reported the following [raw scores and (standard deviations)]: condition (laptop (=0)), whichtalk (Islam) [6.33 (1.75)] where I find [5.83 (2.48)]. Also in Factual questions, they reported: condition (laptop), whichtalk (Algorithms) [4.17 (2.14)] where I find [4.67 (1.86)].</p>
+<p>The laptop condition lectures on Islam and Algorithms also differed in Conceptual questions: for Islam they report [3.50 (1.22)] where I got [3.33 (1.03)] and for Algorithm they report [3.50 (1.05)] where I got [3.67 (1.21)].</p>
+<p>Maybe they removed some subjects at this stage that make the standard deviation off and throw the later ANOVAs?</p>
+<p>There is mention in the “Study 1 Participants” section of the paper of removing two participants. Those excluded participants seem not to be included in their public data (they report 67 participants minus the 2 = 65 participants, the number in their public data). I found no other mention of excluded data or differently aggregated data in the paper or supplemental materials.</p>
+<p>I note the errors below but will not include them in the final count since they are not the Target Outcomes.</p>
 <pre class="r"><code># Recording error for Factual Islam laptop mean and sd.
 compareValues(reportedValue = 6.33, obtainedValue = 5.83) # mean</code></pre>
 <pre><code>## [1] &quot;MINOR NUMERICAL ERROR. The reported value (6.33) and the obtained value (5.83) differed by 7.9%. NB obtained value was rounded to 2 decimal places.&quot;</code></pre>
@@ -432,7 +420,8 @@ compareValues(reportedValue = 3.5, obtainedValue = 3.67) # mean</code></pre>
 library(car)
 library(lme4)
 library(Matrix)
-library(lmerTest)</code></pre>
+library(lmerTest)
+library(lsr)</code></pre>
 <p>I label these sections using the numbering in Methods summary, above. The labels “a,” “b,” etc., are various attempts to reproduce the reported results. 1.a.</p>
 <pre class="r"><code># Deal with only Factual-recall questions (objectiveZ). 
 # In the paper they got F(1,55) = 0.014, p =.91
@@ -529,6 +518,44 @@ summary(aovObj)</code></pre>
 ##           Df Sum Sq Mean Sq F value Pr(&gt;F)
 ## condition  1   1.39   1.393   1.383  0.244
 ## Residuals 61  61.42   1.007</code></pre>
+<p>1.d.</p>
+<pre class="r"><code># Another way of reporting the ANOVA, this one provides an F-value.
+model = lmer(objectiveZ ~ condition + (1|whichtalk),
+           data = data)
+summary(model)</code></pre>
+<pre><code>## Linear mixed model fit by REML t-tests use Satterthwaite approximations
+##   to degrees of freedom [lmerMod]
+## Formula: objectiveZ ~ condition + (1 | whichtalk)
+##    Data: data
+## 
+## REML criterion at convergence: 185.3
+## 
+## Scaled residuals: 
+##      Min       1Q   Median       3Q      Max 
+## -2.04983 -0.69374 -0.05334  0.70956  2.12403 
+## 
+## Random effects:
+##  Groups    Name        Variance Std.Dev.
+##  whichtalk (Intercept) 0.09204  0.3034  
+##  Residual              0.94241  0.9708  
+## Number of obs: 65, groups:  whichtalk, 5
+## 
+## Fixed effects:
+##             Estimate Std. Error       df t value Pr(&gt;|t|)
+## (Intercept)  0.01003    0.22137  8.47000   0.045    0.965
+## condition    0.01466    0.24228 59.81000   0.061    0.952
+## 
+## Correlation of Fixed Effects:
+##           (Intr)
+## condition -0.572</code></pre>
+<pre class="r"><code>anova(model)</code></pre>
+<pre><code>## Analysis of Variance Table of type III  with  Satterthwaite 
+## approximation for degrees of freedom
+##              Sum Sq   Mean Sq NumDF  DenDF   F.value Pr(&gt;F)
+## condition 0.0034517 0.0034517     1 59.815 0.0036627 0.9519</code></pre>
+<pre class="r"><code># Recording error for ANOVA F value.
+compareValues(reportedValue = .014, obtainedValue = .003)</code></pre>
+<pre><code>## [1] &quot;MAJOR NUMERICAL ERROR. The reported value (0.014) and the obtained value (0.003) differed by 78.57%. NB obtained value was rounded to 3 decimal places.&quot;</code></pre>
 <p>2.a.</p>
 <pre class="r"><code># Deals with Conceptual quesions (openZ). Here is the code with type = &quot;II&quot;. 
 # In the paper they get F(1, 55) = 9.99, p = .03
@@ -628,6 +655,46 @@ summary(aovConceptual)</code></pre>
 <pre><code>##             Df Sum Sq Mean Sq F value Pr(&gt;F)
 ## condition    1   1.56   1.561   1.554  0.217
 ## Residuals   63  63.30   1.005</code></pre>
+<p>2.e.</p>
+<pre class="r"><code># ANOVA run with F-value
+model = lmer(openZ ~ condition + (1|whichtalk),
+           data = data)
+summary(model)</code></pre>
+<pre><code>## Linear mixed model fit by REML t-tests use Satterthwaite approximations
+##   to degrees of freedom [lmerMod]
+## Formula: openZ ~ condition + (1 | whichtalk)
+##    Data: data
+## 
+## REML criterion at convergence: 184.3
+## 
+## Scaled residuals: 
+##      Min       1Q   Median       3Q      Max 
+## -2.52642 -0.49140  0.01514  0.51281  2.57106 
+## 
+## Random effects:
+##  Groups    Name        Variance Std.Dev.
+##  whichtalk (Intercept) 0.09474  0.3078  
+##  Residual              0.92596  0.9623  
+## Number of obs: 65, groups:  whichtalk, 5
+## 
+## Fixed effects:
+##             Estimate Std. Error      df t value Pr(&gt;|t|)
+## (Intercept)  -0.1644     0.2214  8.6200  -0.742    0.478
+## condition     0.3169     0.2402 59.9100   1.319    0.192
+## 
+## Correlation of Fixed Effects:
+##           (Intr)
+## condition -0.567</code></pre>
+<pre class="r"><code>anova(model)</code></pre>
+<pre><code>## Analysis of Variance Table of type III  with  Satterthwaite 
+## approximation for degrees of freedom
+##           Sum Sq Mean Sq NumDF  DenDF F.value Pr(&gt;F)
+## condition 1.6118  1.6118     1 59.905  1.7407 0.1921</code></pre>
+<pre class="r"><code># Recording error for ANOVA F value.
+compareValues(reportedValue = 9.99, obtainedValue = 1.74)</code></pre>
+<pre><code>## [1] &quot;MAJOR NUMERICAL ERROR. The reported value (9.99) and the obtained value (1.74) differed by 82.58%. NB obtained value was rounded to 2 decimal places.&quot;</code></pre>
+<pre class="r"><code># This was an attempt at investigating the eta squared value. I wa unable to get the function to work.
+# etaSquared(model, type = 2, anova = TRUE)</code></pre>
 <ol start="3" style="list-style-type: decimal">
 <li></li>
 </ol>
@@ -649,7 +716,7 @@ summary(aovLecture)</code></pre>
             Article_ID = &quot;CARPS_1-6-2014_PS&quot;,
             Insufficient_Information_Errors = 0,
             Decision_Errors = 0,
-            Major_Numerical_Errors = 6,
+            Major_Numerical_Errors = 3,
             Time_to_Complete = 510,
             Author_Assistance = FALSE)</code></pre>
 <table>
@@ -666,13 +733,13 @@ summary(aovLecture)</code></pre>
 <tr class="odd">
 <td align="right">0</td>
 <td align="right">0</td>
-<td align="right">6</td>
+<td align="right">3</td>
 <td align="right">510</td>
 <td align="left">Failure</td>
 </tr>
 </tbody>
 </table>
-<p>The reported ANOVAs were the main findings. We encountered major errors already at the descriptive statistics stage. Hopefully these can be easily resolved by contacting the authors to find out what additional data processing, cleaning, or exclusions might be causing these differences. The innaccurate ANOVA findings recorded here (including the difference in reported degrees of freedom) may arise for the following reasons: the underlying data differences just described, incorrect R scripts for the ANOVAs reported in the article, or they may actually be different. The time to complete is possibly unusually long because I had not previously run mixed-effects ANOVAs and needed to look for ways to implement them in R.</p>
+<p>The reported ANOVAs were the main findings. We encountered major errors already at the descriptive statistics stage. Hopefully these can be easily resolved by contacting the authors to find out what additional data processing, cleaning, or exclusions might be causing these differences. The innaccurate ANOVA findings recorded here (including the difference in reported degrees of freedom) may arise for the following reasons: the underlying data differences just described, incorrect R scripts for the ANOVAs reported in the article, or they may actually be different. The time to complete is possibly unusually long because I had not previously run mixed-effects ANOVAs and needed time and assistance implementing them in R.</p>
 <pre class="r"><code>devtools::session_info()</code></pre>
 <pre><code>##  setting  value                       
 ##  version  R version 3.4.1 (2017-06-30)
@@ -730,6 +797,7 @@ summary(aovLecture)</code></pre>
 ##  lazyeval       0.2.0    2016-06-12
 ##  lme4         * 1.1-14   2017-09-27
 ##  lmerTest     * 2.0-33   2016-12-03
+##  lsr          * 0.5      2015-03-02
 ##  lubridate      1.6.0    2016-09-13
 ##  magrittr       1.5      2014-11-22
 ##  MASS           7.3-47   2017-02-26
@@ -824,6 +892,7 @@ summary(aovLecture)</code></pre>
 ##  CRAN (R 3.4.0)                             
 ##  CRAN (R 3.4.0)                             
 ##  CRAN (R 3.4.2)                             
+##  CRAN (R 3.4.0)                             
 ##  CRAN (R 3.4.0)                             
 ##  CRAN (R 3.4.0)                             
 ##  CRAN (R 3.4.0)                             
