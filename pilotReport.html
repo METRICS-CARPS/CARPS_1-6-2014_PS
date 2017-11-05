@@ -236,7 +236,7 @@ div.tocify {
 </div>
 <div id="methods-summary" class="section level4">
 <h4>Methods summary:</h4>
-<p>Subscript: H<sub>2</sub>O is a liquid. Superscript: 2<sup>10</sup> is 1024.</p>
+<p>Mueller et al. 2014 aimed to find out if note-taking medium (longhand or laptop) had an effect on participants’ ability to correctly answer factual and conceptual questions. Study 1 asked 67 participants to watch one of five different lectures, perform distractor tasks, and then answer questions about the lecture they viewed. They found that note-taking medium had a significant effect on Conceptual answers but not on Factual answers.</p>
 <p>The authors report converting the raw data to z scores before listing the ANOVA results from 4 tests: 1. Factual-recall questions by condition (laptop or longhand), 2. Conceptual-application questions by condition, 3. Conceptual-application affected by lecture (labelled “whichtalk” in the data), and 4. Interaction between lecture and note-taking medium (labelled “condition” in the data). All of these ANOVAs were mixed fiexed- and random-effects ANOVAs according to the article.</p>
 <p>Before reproducing the ANOVAs, I reproduced the means and standard deviations reported for the raw and z scored data.</p>
 <hr />
@@ -250,11 +250,9 @@ div.tocify {
 </blockquote>
 <p><strong>Note</strong> Make sure to use the original article for additional context and information about any necessary pre-processing steps. Also check for additional supplementary materials that may provide supporting documentation for analysis procedures.</p>
 <hr />
-<p>[The chunk below sets up some formatting options for the R Markdown document]</p>
 </div>
 <div id="step-1-load-packages" class="section level2">
 <h2>Step 1: Load packages</h2>
-<p>[Some useful packages are being loaded below. You can add any additional ones you might need too.]</p>
 <pre class="r"><code>library(tidyverse) # for data munging
 library(knitr) # for kable table formating
 library(haven) # import and export 'SPSS', 'Stata' and 'SAS' Files
@@ -717,7 +715,7 @@ summary(aovLecture)</code></pre>
             Insufficient_Information_Errors = 0,
             Decision_Errors = 0,
             Major_Numerical_Errors = 3,
-            Time_to_Complete = 510,
+            Time_to_Complete = 525,
             Author_Assistance = FALSE)</code></pre>
 <table>
 <thead>
@@ -734,7 +732,7 @@ summary(aovLecture)</code></pre>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">3</td>
-<td align="right">510</td>
+<td align="right">525</td>
 <td align="left">Failure</td>
 </tr>
 </tbody>
