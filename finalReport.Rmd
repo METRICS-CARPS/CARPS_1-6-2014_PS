@@ -91,7 +91,6 @@ knitr::opts_chunk$set(echo=TRUE, warning=FALSE, message=FALSE)
 library(tidyverse) # for data munging
 library(knitr) # for kable table formating
 library(haven) # import and export 'SPSS', 'Stata' and 'SAS' Files
-library(readxl) # import excel files
 library(CARPSreports) # custom report functions
 ```
 
@@ -105,21 +104,17 @@ reportObject <- data.frame(dummyRow = TRUE, reportedValue = NA, obtainedValue = 
 ## Step 2: Load data
 
 ```{r}
-# Link to the guidelines: https://cdn.rawgit.com/METRICS-CARPS/reproCheckSteps/18802161/reproducibilityCheckSteps.html#introduction 
 data <- read_spss("data/Study_1_Upload_Data.sav")
 ```
-
-```{r}
-# If condition needs to be numeric (rather than atomic as it was in the read .sav file)
-# data$condition <- as.numeric(data$condition)
-```
-
 
 ## Step 3: Tidy data
 
 ```{r}
-# I thought I might need to have objectiveZ and openZ together as Qtype. If that turns out to be the case, this is the code for that operation.
-# data.test <- gather(data, "Qtype","Qscore", objectiveZ, openZ)
+data_tidy <- data %>%
+  gather("nr_words", "perc_overlap", onegrams, twograms, threegrams) %>%
+  gather("SAT_type", "SAT_score", SATreading, SATmath, SATwriting, SATcombined) %>%
+  gather("item_type", "z_score", objectiveZ, openZ, openandobjectiveZ) %>%
+  gather("item_type_raw", "raw_score", rawobjective, rawopen)
 ```
 
 ## Step 4: Run analysis
