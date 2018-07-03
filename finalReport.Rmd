@@ -31,7 +31,7 @@ The authors report converting the raw data to z scores before listing the ANOVA 
 2. Conceptual-application questions by condition,
 3. Conceptual-application affected by lecture (labelled "whichtalk" in the data), and 
 4. Interaction between lecture and note-taking medium (labelled "condition" in the data).
-All of these ANOVAs were mixed fixed- and random-effects ANOVAs according to the article.
+According to the article, all of these ANOVAs were mixed fixed- and random-effects ANOVAs, with note-taking medium (laptop vs. longhand) as a fixed effect and lecture (which talk was viewed) as a random effect.
 
 Before reproducing the ANOVAs, I reproduced the means and standard deviations reported for the raw and z scored data. 
 
