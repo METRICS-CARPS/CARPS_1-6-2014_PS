@@ -113,8 +113,14 @@ data <- read_spss("data/Study_1_Upload_Data.sav")
 data_tidy <- data %>%
   gather("nr_words", "perc_overlap", onegrams, twograms, threegrams) %>%
   gather("SAT_type", "SAT_score", SATreading, SATmath, SATwriting, SATcombined) %>%
-  gather("item_type", "z_score", objectiveZ, openZ, openandobjectiveZ) %>%
-  gather("item_type_raw", "raw_score", rawobjective, rawopen)
+  
+# it becomes quite difficult to make the scores on the factual/conceptual questions tidy. The code below is a first attempt to do this, but it still needs work.
+  
+  # data %>%
+  # gather("item_type", "score", objectiveZ, openZ, openandobjectiveZ, rawobjective, rawopen) %>%
+  # mutate(score_type = ifelse(grepl("z", item_type, ignore.case = TRUE), "z", "raw")) %>%
+  # mutate(item_type = ifelse(grepl("openandobjective", item_type, ignore.case = TRUE), "openandobjective", ifelse("open", item_type, ignore.case = TRUE), "open", "objective"))
+  # spread(...)
 ```
 
 ## Step 4: Run analysis
