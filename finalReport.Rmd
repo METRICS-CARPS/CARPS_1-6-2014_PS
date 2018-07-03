@@ -1,12 +1,12 @@
 ---
-  title: "CARPS Reproducibility Report"
+title: "CARPS Reproducibility Report"
 output:
-  html_document:
-  toc: true
+html_document:
+toc: true
 toc_float: true
 ---
   
-  [PILOT/COPILOT - TEXT IN SQUARE BRACKETS IS HERE FOR GUIDANCE. COPILOT PLEASE DELETE BEFORE KNITTING THE FINAL REPORT]
+[PILOT/COPILOT - TEXT IN SQUARE BRACKETS IS HERE FOR GUIDANCE. COPILOT PLEASE DELETE BEFORE KNITTING THE FINAL REPORT]
 
 # Report Details
 
@@ -20,9 +20,9 @@ toc_float: true
 
 -------
   
-  #### Methods summary: 
-  
-  [PILOT/COPILOT write a brief summary of the methods underlying the target outcomes written in your own words]
+#### Methods summary: 
+
+[PILOT/COPILOT write a brief summary of the methods underlying the target outcomes written in your own words]
 
 Mueller et al. 2014 aimed to find out if note-taking medium (longhand or laptop) had an effect on participants' ability to correctly answer factual and conceptual questions. Study 1 asked 67 participants to watch one of five different lectures, perform distractor tasks, and then answer questions about the lecture they viewed. They found that note-taking medium had a significant effect on Conceptual answers but not on Factual answers.
 
@@ -89,7 +89,6 @@ library(readxl) # import excel files
 library(CARPSreports) # custom report functions
 ```
 
-
 [PILOT/COPILOT DO NOT MAKE CHANGES TO THE CODE CHUNK BELOW]
 
 ```{r}
@@ -100,7 +99,7 @@ reportObject <- data.frame(dummyRow = TRUE, reportedValue = NA, obtainedValue = 
 ## Step 2: Load data
 
 ```{r}
-# Link to the guidelines: http://rpubs.com/tommetascience/CARPS
+# Link to the guidelines: https://cdn.rawgit.com/METRICS-CARPS/reproCheckSteps/18802161/reproducibilityCheckSteps.html#introduction 
 data <- read_spss("data/Study_1_Upload_Data.sav")
 ```
 
