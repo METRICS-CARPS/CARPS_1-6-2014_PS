@@ -1,20 +1,29 @@
 ---
-title: "CARPS Reproducibility Report"
+  title: "CARPS Reproducibility Report"
 output:
   html_document:
-    toc: true
-    toc_float: true
+  toc: true
+toc_float: true
 ---
+  
+  [PILOT/COPILOT - TEXT IN SQUARE BRACKETS IS HERE FOR GUIDANCE. COPILOT PLEASE DELETE BEFORE KNITTING THE FINAL REPORT]
+
+# Report Details
+
+[PILOT/COPILOT ENTER RELEVANT REPORT DETAILS HERE]
 
 #### Article ID: [CARPS_1-6-2014_PS]
 #### Pilot 1: [Tysen Dauer]
-#### Co-pilot: [Erik Santoro and Jaclyn Schwartz]
+#### Co-pilot: [Michele Nuijten]
 #### Start date: [October 26, 2017]
-#### End date: [November 4, 2017]   
+#### End date: [-]   
 
 -------
+  
+  #### Methods summary: 
+  
+  [PILOT/COPILOT write a brief summary of the methods underlying the target outcomes written in your own words]
 
-#### Methods summary: 
 Mueller et al. 2014 aimed to find out if note-taking medium (longhand or laptop) had an effect on participants' ability to correctly answer factual and conceptual questions. Study 1 asked 67 participants to watch one of five different lectures, perform distractor tasks, and then answer questions about the lecture they viewed. They found that note-taking medium had a significant effect on Conceptual answers but not on Factual answers.
 
 The authors report converting the raw data to z scores before listing the ANOVA results from 4 tests: 
@@ -22,13 +31,16 @@ The authors report converting the raw data to z scores before listing the ANOVA 
 2. Conceptual-application questions by condition,
 3. Conceptual-application affected by lecture (labelled "whichtalk" in the data), and 
 4. Interaction between lecture and note-taking medium (labelled "condition" in the data).
-All of these ANOVAs were mixed fiexed- and random-effects ANOVAs according to the article.
+All of these ANOVAs were mixed fixed- and random-effects ANOVAs according to the article.
 
 Before reproducing the ANOVAs, I reproduced the means and standard deviations reported for the raw and z scored data. 
 
 ------
 
 #### Target outcomes: 
+
+[PILOT copy and paste the target outcomes identified in targetOutcomes.md]  
+
 For this article you should focus on the findings reported for Study 1 in section "Laptop versus longhand performance".
 
 Specifically, you should attempt to reproduce all descriptive and inferential analyses reported in the text below and associated tables/figures:
@@ -59,11 +71,15 @@ Make sure to use the original article for additional context and information abo
 
 ------
 
+[PILOT/COPILOT DO NOT CHANGE THE CODE IN THE CHUNK BELOW]  
+
 ```{r global_options, include=FALSE}
 knitr::opts_chunk$set(echo=TRUE, warning=FALSE, message=FALSE)
 ```
 
 ## Step 1: Load packages
+
+[PILOT/COPILOT Some useful packages are being loaded below. You can add any additional ones you might need too.]
 
 ```{r}
 library(tidyverse) # for data munging
@@ -71,6 +87,14 @@ library(knitr) # for kable table formating
 library(haven) # import and export 'SPSS', 'Stata' and 'SAS' Files
 library(readxl) # import excel files
 library(CARPSreports) # custom report functions
+```
+
+
+[PILOT/COPILOT DO NOT MAKE CHANGES TO THE CODE CHUNK BELOW]
+
+```{r}
+# Prepare report object. This will be updated automatically by the reproCheck function each time values are compared
+reportObject <- data.frame(dummyRow = TRUE, reportedValue = NA, obtainedValue = NA, valueType = NA, percentageError = NA, comparisonOutcome = NA, eyeballCheck = NA)
 ```
 
 ## Step 2: Load data
@@ -97,6 +121,8 @@ data <- read_spss("data/Study_1_Upload_Data.sav")
 
 ### Pre-processing
 
+[you can remove this section if no pre-processing is required]
+
 ```{r}
 # A note about nomenclature: in the paper the authors refer to Factual and Conceptual questions. In the data these items are labelled "objective" and "open", respectively. 
 ```
@@ -106,8 +132,8 @@ data <- read_spss("data/Study_1_Upload_Data.sav")
 ```{r}
 # Standard deviation of sdObj is off. I get 0.9965552 and they report 1.31. Otherwise these numbers are correct.
 means <- data %>%
-  group_by(condition) %>%
-  summarize(meanObj = mean(objectiveZ), meanOpen = mean(openZ), sdObj = sd(objectiveZ), sdOpen = sd(openZ))
+group_by(condition) %>%
+summarize(meanObj = mean(objectiveZ), meanOpen = mean(openZ), sdObj = sd(objectiveZ), sdOpen = sd(openZ))
 ```
 
 ```{r}
@@ -119,8 +145,8 @@ compareValues(reportedValue = 1.31, obtainedValue = 0.9965552)
 ```{r}
 # I also found their reported Raw Means for Study 1 and calculated them for comparison (these raw numbers are reported in the "Supplemental Material" folder, the file is named *Raw_Means_and_Questions.pdf).
 raw.means <- data %>%
-  group_by(condition, whichtalk)%>%
-  summarize(mean.raw.objective = mean(rawobjective), sd.raw.objective = sd(rawobjective), mean.raw.open = mean(rawopen), sd.raw.open = sd(rawopen))
+group_by(condition, whichtalk)%>%
+summarize(mean.raw.objective = mean(rawobjective), sd.raw.objective = sd(rawobjective), mean.raw.open = mean(rawopen), sd.raw.open = sd(rawopen))
 ```
 
 Here too I found some difference that might help unravel later discrepancies. They seem to have different data for the condition:laptop lectures on Islam and Algorithms. Here is a verbal description. Please find the recorded errors repeated formally below.
@@ -131,7 +157,7 @@ where I find [5.83 (2.48)].
 Also in Factual questions, they reported: 
 condition (laptop), whichtalk (Algorithms) [4.17 (2.14)]
 where I find [4.67 (1.86)].
- 
+
 The laptop condition lectures on Islam and Algorithms also differed in Conceptual questions:
 for Islam they report [3.50 (1.22)]
 where I got [3.33 (1.03)]
@@ -194,7 +220,7 @@ I label these sections using the numbering in Methods summary, above. The labels
 # This gets close for the p-value: .952 (here, and below, the degrees of freedom are always higher than the paper's 55). The results also do not seem to include F-values.
 
 model = lmer(objectiveZ ~ condition + (1|whichtalk),
-           data = data)
+             data = data)
 summary(model)
 Anova(model, type = "II")
 ```
@@ -208,7 +234,7 @@ compareValues(reportedValue = .91, obtainedValue = .952, isP = T)
 ```{r}
 # Same as above (Factual = objectiveZ), with type="III". The results look identical to when type = "II".
 model = lmer(objectiveZ ~ condition + (1|whichtalk),
-           data = data)
+             data = data)
 summary(model)
 Anova(model, type = "III")
 ```
@@ -223,7 +249,7 @@ summary(aovObj)
 ```{r}
 # Another way of reporting the ANOVA, this one provides an F-value.
 model = lmer(objectiveZ ~ condition + (1|whichtalk),
-           data = data)
+             data = data)
 summary(model)
 anova(model)
 ```
@@ -238,7 +264,7 @@ compareValues(reportedValue = .014, obtainedValue = .003)
 # Deals with Conceptual quesions (openZ). Here is the code with type = "II". 
 # In the paper they get F(1, 55) = 9.99, p = .03
 model = lmer(openZ ~ condition + (1|whichtalk),
-           data = data)
+             data = data)
 summary(model)
 Anova(model, type = "II")
 ```
@@ -248,7 +274,7 @@ Anova(model, type = "II")
 # Same as above: testing Conceptual, this time with type = "III". This produced different, but still incorrect results. The results are also the same as when type = "II".
 # In the paper they get F(1, 55) = 9.99, p = .03
 model = lmer(openZ ~ condition + (1|whichtalk),
-           data = data)
+             data = data)
 summary(model)
 Anova(model, type = "III")
 ```
@@ -271,7 +297,7 @@ summary(aovConceptual)
 ```{r}
 # ANOVA run with F-value
 model = lmer(openZ ~ condition + (1|whichtalk),
-           data = data)
+             data = data)
 summary(model)
 anova(model)
 ```
@@ -299,6 +325,71 @@ summary(aovLecture)
 
 ## Step 5: Conclusion
 
+[Please include a text summary describing your findings. If this reproducibility check was a failure, you should note any suggestions as to what you think the likely cause(s) might be.]
+
+[PILOT/COPILOT ENTER RELEVANT INFORMATION BELOW]
+
+```{r}
+Author_Assistance = FALSE # was author assistance provided? (if so, enter TRUE)
+
+Insufficient_Information_Errors <- 0 # how many discrete insufficient information issues did you encounter?
+
+# Assess the causal locus (discrete reproducibility issues) of any reproducibility errors. Note that there doesn't necessarily have to be a one-to-one correspondance between discrete reproducibility issues and reproducibility errors. For example, it could be that the original article neglects to mention that a Greenhouse-Geisser correct was applied to ANOVA outcomes. This might result in multiple reproducibility errors, but there is a single causal locus (discrete reproducibility issue).
+
+locus_typo <- NA # how many discrete issues did you encounter that related to typographical errors?
+locus_specification <- NA # how many discrete issues did you encounter that related to incomplete, incorrect, or unclear specification of the original analyses?
+locus_analysis <- NA # how many discrete issues did you encounter that related to errors in the authors' original analyses?
+locus_data <- NA # how many discrete issues did you encounter that related to errors in the data files shared by the authors?
+locus_unidentified <- NA # how many discrete issues were there for which you could not identify the cause
+
+# How many of the above issues were resolved through author assistance?
+locus_typo_resolved <- NA # how many discrete issues did you encounter that related to typographical errors?
+locus_specification_resolved <- NA # how many discrete issues did you encounter that related to incomplete, incorrect, or unclear specification of the original analyses?
+locus_analysis_resolved <- NA # how many discrete issues did you encounter that related to errors in the authors' original analyses?
+locus_data_resolved <- NA # how many discrete issues did you encounter that related to errors in the data files shared by the authors?
+locus_unidentified_resolved <- NA # how many discrete issues were there for which you could not identify the cause
+
+Affects_Conclusion <- NA # Do any reproducibility issues encounter appear to affect the conclusions made in the original article? TRUE, FALSE, or NA. This is a subjective judgement, but you should taking into account multiple factors, such as the presence/absence of decision errors, the number of target outcomes that could not be reproduced, the type of outcomes that could or could not be reproduced, the difference in magnitude of effect sizes, and the predictions of the specific hypothesis under scrutiny.
+```
+
+[PILOT/COPILOT DOD NOT EDIT THE CODE CHUNK BELOW]
+
+```{r}
+reportObject <- reportObject %>%
+  filter(dummyRow == FALSE) %>% # remove the dummy row
+  select(-dummyRow) %>% # remove dummy row designation
+  mutate(articleID = articleID) %>% # add variables to report 
+  select(articleID, everything()) # make articleID first column
+
+# decide on final outcome
+if(any(reportObject$comparisonOutcome %in% c("MAJOR_ERROR", "DECISION_ERROR")) | Insufficient_Information_Errors > 0){
+  finalOutcome <- "Failure without author assistance"
+  if(Author_Assistance == T){
+    finalOutcome <- "Failure despite author assistance"
+  }
+}else{
+  finalOutcome <- "Success without author assistance"
+  if(Author_Assistance == T){
+    finalOutcome <- "Success with author assistance"
+  }
+}
+
+# collate report extra details
+reportExtras <- data.frame(articleID, pilotNames, copilotNames, pilotTTC, copilotTTC, pilotStartDate, copilotStartDate, completionDate, Author_Assistance, finalOutcome, Insufficient_Information_Errors, locus_typo, locus_specification, locus_analysis, locus_data, locus_unidentified, locus_typo_resolved, locus_specification_resolved, locus_analysis_resolved, locus_data_resolved, locus_unidentified_resolved)
+
+# save report objects
+if(reportType == "pilot"){
+  write_csv(reportObject, "pilotReportDetailed.csv")
+  write_csv(reportExtras, "pilotReportExtras.csv")
+}
+
+if(reportType == "final"){
+  write_csv(reportObject, "finalReportDetailed.csv")
+  write_csv(reportExtras, "finalReportExtras.csv")
+}
+```
+
+
 ```{r}
 carpsReport(Report_Type = "pilot",
             Article_ID = "CARPS_1-6-2014_PS",
@@ -311,6 +402,11 @@ carpsReport(Report_Type = "pilot",
 
 The reported ANOVAs were the main findings. We encountered major errors already at the descriptive statistics stage. Hopefully these can be easily resolved by contacting the authors to find out what additional data processing, cleaning, or exclusions might be causing these differences. The innaccurate ANOVA findings recorded here (including the difference in reported degrees of freedom) may arise for the following reasons: the underlying data differences just described, incorrect R scripts for the ANOVAs reported in the article, or they may actually be different. The time to complete is possibly unusually long because I had not previously run mixed-effects ANOVAs and needed time and assistance implementing them in R. 
 
+# Session information
+
+[This function will output information about the package versions used in this report:]
+
 ```{r session_info, include=TRUE, echo=TRUE, results='markup'}
 devtools::session_info()
 ```
+
