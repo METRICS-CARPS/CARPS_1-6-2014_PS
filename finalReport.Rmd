@@ -94,18 +94,15 @@ data <- read_spss("data/Study_1_Upload_Data.sav")
 ```{r}
 # make data tidier by gathering the variable of interest in long format
 data_tidy <- data %>%
-  gather("item_type_Z", "Z_score", objectiveZ, openZ, openandobjectiveZ)
+  select(condition, objectiveZ, openZ) %>%
+  gather("item_type_Z", "Z_score", objectiveZ, openZ)
 ```
 
 ## Step 4: Run analysis
 
 ### Pre-processing
 
-[you can remove this section if no pre-processing is required]
-
-```{r}
-# A note about nomenclature: in the paper the authors refer to Factual and Conceptual questions. In the data these items are labelled "objective" and "open", respectively. 
-```
+A note about nomenclature: in the paper the authors refer to Factual and Conceptual questions. In the data these items are labelled "objective" and "open", respectively. 
 
 ### Descriptive statistics
 
@@ -117,7 +114,6 @@ across conditions (laptop: **M = 0.021, SD = 1.31**; longhand: **M = 0.009, SD =
 ```{r}
 descriptives <- data_tidy %>%
   group_by(item_type_Z, condition) %>%
-  filter(item_type_Z != "openandobjectiveZ") %>%
   summarize(mean = mean(Z_score),
             sd = sd(Z_score)) %>%
   gather("statistic", "value", mean, sd)
@@ -135,22 +131,34 @@ for(i in 1:nrow(descriptives)){
 }
 ```
 
+I also found their reported Raw Means for Study 1 and calculated them for comparison (these raw numbers are reported in the "Supplemental Material" folder, the file is named *Raw_Means_and_Questions.pdf). See also the screenshot of these tables below.
+
+ ![](screenshotRawMeansPerTalk.png)
 
 ```{r}
-# I also found their reported Raw Means for Study 1 and calculated them for comparison (these raw numbers are reported in the "Supplemental Material" folder, the file is named *Raw_Means_and_Questions.pdf).
-
 # tidy the data based on the raw scores
 data_tidy_rawscores <- data %>%
+  select(condition, whichtalk, rawobjective, rawopen) %>%
   gather("item_type_raw", "raw_score", rawobjective, rawopen)
 
-# calculate means
+# calculate means per talk, item type, and condition
 raw_means <- data_tidy_rawscores %>%
-  group_by(condition, item_type_raw, whichtalk)%>%
-  summarize(mean_raw= mean(raw_score), 
-            sd.raw = sd(raw_score))
+  group_by(item_type_raw, condition, whichtalk)%>%
+  summarize(mean= mean(raw_score), 
+            sd = sd(raw_score)) %>%
+  gather("statistic", "value", mean, sd)
+
+raw_means$reportedValue <- c(6.33, 4.80, 5.00, 7.67, 4.17,
+                             8.75,6.25, 3.67, 8.50, 4.17,
+                             3.50, 3.40, 4.38, 3.83, 3.50,
+                             4.50, 3.88, 4.50, 4.33, 4.33,
+                             1.75, 1.92, 1.41, 2.66, 2.14,
+                             2.12, 1.75, 1.63, 2.81, 1.72,
+                             1.22, 1.67, .92, 1.47, 1.05,
+                             .93, 2.03, 1.05, 2.42, .52)
 ```
 
-Here too I found some difference that might help unravel later discrepancies. They seem to have different data for the condition:laptop lectures on Islam and Algorithms. Here is a verbal description. Please find the recorded errors repeated formally below.
+Here too I found some differences that might help unravel later discrepancies. They seem to have different data for the condition:laptop lectures on Islam and Algorithms. Here is a verbal description. Please find the recorded errors repeated formally below.
 
 In Factual questions, they reported the following [raw scores and (standard deviations)]: 
 condition (laptop (=0)), whichtalk (Islam) [6.33 (1.75)] 
