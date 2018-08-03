@@ -116,98 +116,38 @@ across conditions (laptop: **M = 0.021, SD = 1.31**; longhand: **M = 0.009, SD =
 
 ```{r}
 descriptives <- data_tidy %>%
-  group_by(condition, item_type_Z) %>%
+  group_by(item_type_Z, condition) %>%
   filter(item_type_Z != "openandobjectiveZ") %>%
   summarize(mean = mean(Z_score),
-            sd = sd(Z_score))
+            sd = sd(Z_score)) %>%
+  gather("statistic", "value", mean, sd)
+  
+descriptives$reportedValue <-  c(0.021, 0.009, -0.156, 0.154,
+                                 1.31, 1.02, 0.915, 1.08)
 
-descriptives
-
-M1 <- descriptives %>%
-  filter(condition == 0, item_type_Z == "objectiveZ") %>%
-  ungroup() %>%
-  select(mean)
-
-SD1 <- descriptives %>%
-  filter(condition == 0, item_type_Z == "objectiveZ") %>%
-  ungroup() %>%
-  select(sd)
-
-M2 <- descriptives %>%
-  filter(condition == 1, item_type_Z == "objectiveZ") %>%
-  ungroup() %>%
-  select(mean)
-
-SD2 <- descriptives %>%
-  filter(condition == 1, item_type_Z == "objectiveZ") %>%
-  ungroup() %>%
-  select(sd)
-
-M3 <- descriptives %>%
-  filter(condition == 0, item_type_Z == "openZ") %>%
-  ungroup() %>%
-  select(mean)
-
-SD3 <- descriptives %>%
-  filter(condition == 0, item_type_Z == "openZ") %>%
-  ungroup() %>%
-  select(sd)
-
-M4 <- descriptives %>%
-  filter(condition == 1, item_type_Z == "openZ") %>%
-  ungroup() %>%
-  select(mean)
-
-SD4 <- descriptives %>%
-  filter(condition == 1, item_type_Z == "openZ") %>%
-  ungroup() %>%
-  select(sd)
 ```
 
 ```{r}
-reproCheck(reportedValue = "0.021",
-           obtainedValue = M1,
-           valueType = "mean")
-
-reproCheck(reportedValue = "1.31", 
-          obtainedValue = SD1,
-          valueType = "sd")
-
-reproCheck(reportedValue = "0.009",
-           obtainedValue = M2,
-           valueType = "mean")
-
-reproCheck(reportedValue = "1.02", 
-          obtainedValue = SD2,
-          valueType = "sd")
-
-reproCheck(reportedValue = "−0.156",
-           obtainedValue = M3,
-           valueType = "mean")
-
-reproCheck(reportedValue = "0.915", 
-          obtainedValue = SD3,
-          valueType = "sd")
-
-reproCheck(reportedValue = "0.154",
-           obtainedValue = M4,
-           valueType = "mean")
-
-reproCheck(reportedValue = "1.08", 
-          obtainedValue = SD4,
-          valueType = "sd")
-
+for(i in 1:nrow(descriptives)){
+  reportObject <- reproCheck(reportedValue = as.character(descriptives$value[i]),
+             obtainedValue = descriptives$reportedValue[i],
+             valueType = as.character(descriptives$statistic[i]))
+}
 ```
 
 
 ```{r}
 # I also found their reported Raw Means for Study 1 and calculated them for comparison (these raw numbers are reported in the "Supplemental Material" folder, the file is named *Raw_Means_and_Questions.pdf).
-raw.means <- data %>%
-  group_by(condition, whichtalk)%>%
-  summarize(mean.raw.objective = mean(rawobjective), 
-            sd.raw.objective = sd(rawobjective), 
-            mean.raw.open = mean(rawopen), 
-            sd.raw.open = sd(rawopen))
+
+# tidy the data based on the raw scores
+data_tidy_rawscores <- data %>%
+  gather("item_type_raw", "raw_score", rawobjective, rawopen)
+
+# calculate means
+raw_means <- data_tidy_rawscores %>%
+  group_by(condition, item_type_raw, whichtalk)%>%
+  summarize(mean_raw= mean(raw_score), 
+            sd.raw = sd(raw_score))
 ```
 
 Here too I found some difference that might help unravel later discrepancies. They seem to have different data for the condition:laptop lectures on Islam and Algorithms. Here is a verbal description. Please find the recorded errors repeated formally below.
