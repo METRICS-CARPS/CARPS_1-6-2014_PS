@@ -51,26 +51,8 @@ For this article you should focus on the findings reported for Study 1 in sectio
 
 Specifically, you should attempt to reproduce all descriptive and inferential analyses reported in the text below and associated tables/figures:
 
-> Laptop versus longhand performance. Mixed fixed and
-random-effects analyses of variance were used to
-test differences, with note-taking medium (laptop vs.
-longhand) as a fixed effect and lecture (which talk was
-viewed) as a random effect. We converted the raw data
-to z scores because the lecture assessments varied in difficulty
-and number of points available; however, results
-did not differ when raw scores were analyzed.4 On factual-
-recall questions, participants performed equally well
-across conditions (laptop: M = 0.021, SD = 1.31; longhand:
-M = 0.009, SD = 1.02), F(1, 55) = 0.014, p = .91.
-However, on conceptual-application questions, laptop
-participants performed significantly worse (M = −0.156,
-SD = 0.915) than longhand participants (M = 0.154, SD =
-1.08), F(1, 55) = 9.99, p = .03, ηp2 = .13 (see Fig. 1).5
-Which lecture participants saw also affected performance
-on conceptual-application questions, F(4, 55) = 12.52,
-p = .02, ηp2 = .16; however, there was no significant
-interaction between lecture and note-taking medium,
-F(4, 55) = 0.164, p = .96.
+> Laptop versus longhand performance. Mixed fixed and random-effects analyses of variance were used to test differences, with note-taking medium (laptop vs.longhand) as a fixed effect and lecture (which talk was viewed) as a random effect. We converted the raw data to z scores because the lecture assessments varied in difficulty
+and number of points available; however, results did not differ when raw scores were analyzed.4 On factual-recall questions, participants performed equally well across conditions (laptop: M = 0.021, SD = 1.31; longhand: M = 0.009, SD = 1.02), F(1, 55) = 0.014, p = .91. However, on conceptual-application questions, laptop participants performed significantly worse (M = −0.156, SD = 0.915) than longhand participants (M = 0.154, SD = 1.08), F(1, 55) = 9.99, p = .03, ηp2 = .13 (see Fig. 1).5 Which lecture participants saw also affected performance on conceptual-application questions, F(4, 55) = 12.52, p = .02, ηp2 = .16; however, there was no significant interaction between lecture and note-taking medium, F(4, 55) = 0.164, p = .96. (from Mueller & Oppenheimer, 2014, p. 1161)
 
 **Note**
 Make sure to use the original article for additional context and information about any necessary pre-processing steps. Also check for additional supplementary materials that may provide supporting documentation for analysis procedures. 
@@ -110,11 +92,9 @@ data <- read_spss("data/Study_1_Upload_Data.sav")
 ## Step 3: Tidy data
 
 ```{r}
+# make data tidier by gathering the variable of interest in long format
 data_tidy <- data %>%
-  gather("nr_words", "perc_overlap", onegrams, twograms, threegrams) %>%
-  gather("SAT_type", "SAT_score", SATreading, SATmath, SATwriting, SATcombined) %>%
-  gather("item_type_Z", "Zscore", objectiveZ, openZ, openandobjectiveZ) %>%
-  gather("item_type_raw", "rawscore", rawobjective, rawopen)
+  gather("item_type_Z", "Z_score", objectiveZ, openZ, openandobjectiveZ)
 ```
 
 ## Step 4: Run analysis
@@ -129,24 +109,105 @@ data_tidy <- data %>%
 
 ### Descriptive statistics
 
+From the article (emphasis added):
+
+> On factual-recall questions, participants performed equally well
+across conditions (laptop: **M = 0.021, SD = 1.31**; longhand: **M = 0.009, SD = 1.02**), [...] However, on conceptual-application questions, laptop participants performed significantly worse (**M = −0.156, SD = 0.915**) than longhand participants (**M = 0.154, SD = 1.08**). (from Mueller & Oppenheimer, 2014, p. 1161)
+
 ```{r}
-# Standard deviation of sdObj is off. I get 0.9965552 and they report 1.31. Otherwise these numbers are correct.
-means <- data %>%
-group_by(condition) %>%
-summarize(meanObj = mean(objectiveZ), meanOpen = mean(openZ), sdObj = sd(objectiveZ), sdOpen = sd(openZ))
+descriptives <- data_tidy %>%
+  group_by(condition, item_type_Z) %>%
+  filter(item_type_Z != "openandobjectiveZ") %>%
+  summarize(mean = mean(Z_score),
+            sd = sd(Z_score))
+
+descriptives
+
+M1 <- descriptives %>%
+  filter(condition == 0, item_type_Z == "objectiveZ") %>%
+  ungroup() %>%
+  select(mean)
+
+SD1 <- descriptives %>%
+  filter(condition == 0, item_type_Z == "objectiveZ") %>%
+  ungroup() %>%
+  select(sd)
+
+M2 <- descriptives %>%
+  filter(condition == 1, item_type_Z == "objectiveZ") %>%
+  ungroup() %>%
+  select(mean)
+
+SD2 <- descriptives %>%
+  filter(condition == 1, item_type_Z == "objectiveZ") %>%
+  ungroup() %>%
+  select(sd)
+
+M3 <- descriptives %>%
+  filter(condition == 0, item_type_Z == "openZ") %>%
+  ungroup() %>%
+  select(mean)
+
+SD3 <- descriptives %>%
+  filter(condition == 0, item_type_Z == "openZ") %>%
+  ungroup() %>%
+  select(sd)
+
+M4 <- descriptives %>%
+  filter(condition == 1, item_type_Z == "openZ") %>%
+  ungroup() %>%
+  select(mean)
+
+SD4 <- descriptives %>%
+  filter(condition == 1, item_type_Z == "openZ") %>%
+  ungroup() %>%
+  select(sd)
 ```
 
 ```{r}
-# Recording error for standard deviation of Objective questions.
-compareValues(reportedValue = 1.31, obtainedValue = 0.9965552)
+reproCheck(reportedValue = "0.021",
+           obtainedValue = M1,
+           valueType = "mean")
+
+reproCheck(reportedValue = "1.31", 
+          obtainedValue = SD1,
+          valueType = "sd")
+
+reproCheck(reportedValue = "0.009",
+           obtainedValue = M2,
+           valueType = "mean")
+
+reproCheck(reportedValue = "1.02", 
+          obtainedValue = SD2,
+          valueType = "sd")
+
+reproCheck(reportedValue = "−0.156",
+           obtainedValue = M3,
+           valueType = "mean")
+
+reproCheck(reportedValue = "0.915", 
+          obtainedValue = SD3,
+          valueType = "sd")
+
+reproCheck(reportedValue = "0.154",
+           obtainedValue = M4,
+           valueType = "mean")
+
+reproCheck(reportedValue = "1.08", 
+          obtainedValue = SD4,
+          valueType = "sd")
+
 ```
 
 
 ```{r}
 # I also found their reported Raw Means for Study 1 and calculated them for comparison (these raw numbers are reported in the "Supplemental Material" folder, the file is named *Raw_Means_and_Questions.pdf).
 raw.means <- data %>%
-group_by(condition, whichtalk)%>%
-summarize(mean.raw.objective = mean(rawobjective), sd.raw.objective = sd(rawobjective), mean.raw.open = mean(rawopen), sd.raw.open = sd(rawopen))
+  group_by(condition, whichtalk)%>%
+  summarize(mean.raw.objective = mean(rawobjective), 
+            sd.raw.objective = sd(rawobjective), 
+            mean.raw.open = mean(rawopen), 
+            sd.raw.open = sd(rawopen))
 ```
 
 Here too I found some difference that might help unravel later discrepancies. They seem to have different data for the condition:laptop lectures on Islam and Algorithms. Here is a verbal description. Please find the recorded errors repeated formally below.
@@ -172,31 +233,30 @@ I note the errors below but will not include them in the final count since they 
 
 ```{r}
 # Recording error for Factual Islam laptop mean and sd.
-compareValues(reportedValue = 6.33, obtainedValue = 5.83) # mean
-compareValues(reportedValue = 1.75, obtainedValue = 2.48) # sd
+##compareValues(reportedValue = 6.33, obtainedValue = 5.83) # mean
+##compareValues(reportedValue = 1.75, obtainedValue = 2.48) # sd
 ```
 ```{r}
 # Recording error for Factual Algorithm laptop mean and sd.
-compareValues(reportedValue = 4.17, obtainedValue = 4.67) # mean
-compareValues(reportedValue = 2.14, obtainedValue = 1.86) # sd
+##compareValues(reportedValue = 4.17, obtainedValue = 4.67) # mean
+##compareValues(reportedValue = 2.14, obtainedValue = 1.86) # sd
 
 ```
 ```{r}
 # Recording error for Conceptual Islam laptop mean and sd.
-compareValues(reportedValue = 3.5, obtainedValue = 3.33) # mean
-compareValues(reportedValue = 1.22, obtainedValue = 1.03) # sd
+##compareValues(reportedValue = 3.5, obtainedValue = 3.33) # mean
+##compareValues(reportedValue = 1.22, obtainedValue = 1.03) # sd
 ```
 
 ```{r}
 # Recording error for Conceptual Algorithm laptop mean and sd.
-compareValues(reportedValue = 3.5, obtainedValue = 3.67) # mean
-compareValues(reportedValue = 1.05, obtainedValue = 1.21) # sd
+##compareValues(reportedValue = 3.5, obtainedValue = 3.67) # mean
+##compareValues(reportedValue = 1.05, obtainedValue = 1.21) # sd
 ```
 
 
 ```{r echo=F, results= 'asis'}
-library(knitr)
-kable(raw.means, caption = "Here is the data as a table. Note that laptop = 0 under condition, Islam = 1 under whichtalk, and Algorithms = 5 under whichtalk.")
+knitr::kable(raw.means, caption = "Here is the data as a table. Note that laptop = 0 under condition, Islam = 1 under whichtalk, and Algorithms = 5 under whichtalk.")
 
 ```
 
@@ -226,7 +286,7 @@ Anova(model, type = "II")
 ```
 ```{r}
 # Recording error for ANOVA p value.
-compareValues(reportedValue = .91, obtainedValue = .952, isP = T)
+#compareValues(reportedValue = .91, obtainedValue = .952, isP = T)
 ```
 
 
@@ -255,7 +315,7 @@ anova(model)
 ```
 ```{r}
 # Recording error for ANOVA F value.
-compareValues(reportedValue = .014, obtainedValue = .003)
+#compareValues(reportedValue = .014, obtainedValue = .003)
 ```
 
 
@@ -303,7 +363,7 @@ anova(model)
 ```
 ```{r}
 # Recording error for ANOVA F value.
-compareValues(reportedValue = 9.99, obtainedValue = 1.74)
+#compareValues(reportedValue = 9.99, obtainedValue = 1.74)
 ```
 
 ```{r}
@@ -391,13 +451,13 @@ if(reportType == "final"){
 
 
 ```{r}
-carpsReport(Report_Type = "pilot",
-            Article_ID = "CARPS_1-6-2014_PS",
-            Insufficient_Information_Errors = 0,
-            Decision_Errors = 0,
-            Major_Numerical_Errors = 3,
-            Time_to_Complete = 525,
-            Author_Assistance = FALSE)
+#carpsReport(Report_Type = "pilot",
+ #           Article_ID = "CARPS_1-6-2014_PS",
+  #          Insufficient_Information_Errors = 0,
+   #         Decision_Errors = 0,
+    #        Major_Numerical_Errors = 3,
+     #       Time_to_Complete = 525,
+      #      Author_Assistance = FALSE)
 ```
 
 The reported ANOVAs were the main findings. We encountered major errors already at the descriptive statistics stage. Hopefully these can be easily resolved by contacting the authors to find out what additional data processing, cleaning, or exclusions might be causing these differences. The innaccurate ANOVA findings recorded here (including the difference in reported degrees of freedom) may arise for the following reasons: the underlying data differences just described, incorrect R scripts for the ANOVAs reported in the article, or they may actually be different. The time to complete is possibly unusually long because I had not previously run mixed-effects ANOVAs and needed time and assistance implementing them in R. 
