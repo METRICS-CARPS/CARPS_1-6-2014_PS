@@ -198,9 +198,12 @@ library(lme4)
 library(Matrix)
 library(lmerTest)
 library(lsr)
+
+# Make sure that whichtalk is read as a factor variable
+data$whichtalk <- as.factor(data$whichtalk)
 ```
 
-#### 1. Factual recall questions
+#### 1. Factual recall questions ~ condition
 
 > On factual-recall questions, participants performed equally well across conditions (laptop: M = 0.021, SD = 1.31; longhand: M = 0.009, SD = 1.02), F(1, 55) = 0.014, p = .91.
 
@@ -212,7 +215,6 @@ I tried to fit the same model, using the `lmer()` function. The obtained p-value
 # attempt to fit lmer model
 model <- lmer(objectiveZ ~ condition + (1|whichtalk),
              data = data)
-summary(model)
 result1 <- anova(model)
 
 result1
@@ -243,73 +245,103 @@ reportObject <- reproCheck(
 ```
 
 
-2.a.
+#### 2. Conceptual questions ~ condition
+
+> However, on conceptual-application questions, laptop participants performed significantly worse (M = −0.156, SD = 0.915) than longhand participants (M = 0.154, SD = 1.08), F(1, 55) = 9.99, p = .03, ηp2 = .13 (see Fig. 1).
+
 ```{r}
-# Deals with Conceptual quesions (openZ). Here is the code with type = "II". 
-# In the paper they get F(1, 55) = 9.99, p = .03
-model = lmer(openZ ~ condition + (1|whichtalk),
+model <- lmer(openZ ~ condition + (1|whichtalk),
              data = data)
-summary(model)
-Anova(model, type = "II")
+result2 <- anova(model)
+
+result2
 ```
 
-2.b.
-```{r}
-# Same as above: testing Conceptual, this time with type = "III". This produced different, but still incorrect results. The results are also the same as when type = "II".
-# In the paper they get F(1, 55) = 9.99, p = .03
-model = lmer(openZ ~ condition + (1|whichtalk),
-             data = data)
-summary(model)
-Anova(model, type = "III")
-```
-
-2.c.
-```{r}
-# Alternatives which did not work.
-aovOp <- aov(openZ ~ condition + Error(whichtalk/condition), data=data)
-summary(aovOp)
-```
-
-2.d.
-```{r}
-# An alternative attempt to deal with only Conceptual-application questions (openZ). Incorrect. 
-aovConceptual <- aov(openZ ~ condition, data=data)
-summary(aovConceptual)
-```
-
-2.e.
-```{r}
-# ANOVA run with F-value
-model = lmer(openZ ~ condition + (1|whichtalk),
-             data = data)
-summary(model)
-anova(model)
-```
-```{r}
-# Recording error for ANOVA F value.
-#compareValues(reportedValue = 9.99, obtainedValue = 1.74)
-```
 
 ```{r}
-# This was an attempt at investigating the eta squared value. I wa unable to get the function to work.
+# This was an attempt at investigating the eta squared value. I was unable to get the function to work.
 # etaSquared(model, type = 2, anova = TRUE)
 ```
 
+```{r}
+# Check values for ANOVA
+ reportObject <- reproCheck(
+    reportedValue = "1",
+    obtainedValue = result2$NumDF,
+    valueType = "df")
 
-3.
+reportObject <- reproCheck(
+    reportedValue = "55",
+    obtainedValue = result2$DenDF,
+    valueType = "df")
+
+reportObject <- reproCheck(
+    reportedValue = "9.99",
+    obtainedValue = result2$`F value`,
+    valueType = "F")
+
+reportObject <- reproCheck(
+    reportedValue = ".03",
+    obtainedValue = result2$`Pr(>F)`,
+    valueType = "p")
+```
+
+
+#### 3. Conceptual questions ~ lecture
+
+> Which lecture participants saw also affected performance on conceptual-application questions, F(4, 55) = 12.52, p = .02, ηp2 = .16;
+
 ```{r}
 # Lecture (whichtalk) affects performance on conceptual-application questions (openZ).
-aovLecture <- aov(openZ ~ whichtalk, data=data)
-summary(aovLecture)
+aovLecture <- aov(openZ ~ whichtalk, data = data)
+result3 <- summary(aovLecture)
+
+result3
 ```
-4.
+
 ```{r}
-# Interaction between lecture (whichtalk) and note-taking medium (condition). This could only be successful if the underlying Conceptual data is accurate, which it is not.
+# Check values for ANOVA
+ reportObject <- reproCheck(
+    reportedValue = "4",
+    obtainedValue = result3[[1]]["whichtalk", "Df"],
+    valueType = "df")
+
+reportObject <- reproCheck(
+    reportedValue = "55",
+    obtainedValue = result3[[1]]["Residuals", "Df"],
+    valueType = "df")
+
+reportObject <- reproCheck(
+    reportedValue = "12.52",
+    obtainedValue = result3[[1]]["whichtalk", "F value"],
+    valueType = "F")
+
+reportObject <- reproCheck(
+    reportedValue = ".02",
+    obtainedValue = result3[[1]]["whichtalk", "Pr(>F)"],
+    valueType = "p")
+```
+
+#### 4. Conceptual questions ~ lecture
+
+> [...] however, there was no significant interaction between lecture and note-taking medium, F(4, 55) = 0.164, p = .96.
+
+```{r}
+# Interaction between lecture (whichtalk) and note-taking medium (condition). 
+aovLectureCondition <- aov(openZ ~ whichtalk * condition, data = data)
+summary(aovLectureCondition)
+
 ```
 
 ## Step 5: Conclusion
 
 [Please include a text summary describing your findings. If this reproducibility check was a failure, you should note any suggestions as to what you think the likely cause(s) might be.]
+
+The reported ANOVAs were the main findings. We encountered major errors already at the descriptive statistics stage. Hopefully these can be easily resolved by contacting the authors to find out what additional data processing, cleaning, or exclusions might be causing these differences. 
+
+The innaccurate ANOVA findings recorded here (including the difference in reported degrees of freedom) may arise for the following reasons: the underlying data differences just described, incorrect R scripts for the ANOVAs reported in the article, or they may actually be different. The time to complete is possibly unusually long because I had not previously run mixed-effects ANOVAs and needed time and assistance implementing them in R. 
+
+Interestingly, a quick statcheck analysis showed that only one result was inconsistently reported (F(1, 55) = 9.99, p = .03; calcualted p = .003).
 
 [PILOT/COPILOT ENTER RELEVANT INFORMATION BELOW]
 
@@ -383,8 +415,6 @@ if(reportType == "final"){
      #       Time_to_Complete = 525,
       #      Author_Assistance = FALSE)
 ```
-
-The reported ANOVAs were the main findings. We encountered major errors already at the descriptive statistics stage. Hopefully these can be easily resolved by contacting the authors to find out what additional data processing, cleaning, or exclusions might be causing these differences. The innaccurate ANOVA findings recorded here (including the difference in reported degrees of freedom) may arise for the following reasons: the underlying data differences just described, incorrect R scripts for the ANOVAs reported in the article, or they may actually be different. The time to complete is possibly unusually long because I had not previously run mixed-effects ANOVAs and needed time and assistance implementing them in R. 
 
 # Session information
 
