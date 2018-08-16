@@ -6,17 +6,13 @@ toc: true
 toc_float: true
 ---
   
-[PILOT/COPILOT - TEXT IN SQUARE BRACKETS IS HERE FOR GUIDANCE. COPILOT PLEASE DELETE BEFORE KNITTING THE FINAL REPORT]
-
 # Report Details
-
-[PILOT/COPILOT ENTER RELEVANT REPORT DETAILS HERE]
 
 ```{r}
 articleID <- "CARPS_1-6-2014_PS" # insert the article ID code here e.g., "10-3-2015_PS"
 reportType <- "final" # specify whether this is the 'pilot' report or 'final' report
 pilotNames <- "Tysen Dauer, Erik Santoro, Jaclyn Schwartz" # insert the pilot's name here e.g., "Tom Hardwicke".  If there are multiple cpilots enter both names in a character string e.g., "Tom Hardwicke, Bob Dylan"
-copilotNames <- "Michele Nuijten" # insert the co-pilot's name here e.g., "Michael Frank". If there are multiple co-pilots enter both names in a character string e.g., "Tom Hardwicke, Bob Dylan"
+copilotNames <- "Michèle Nuijten" # insert the co-pilot's name here e.g., "Michael Frank". If there are multiple co-pilots enter both names in a character string e.g., "Tom Hardwicke, Bob Dylan"
 pilotTTC <- NA # insert the pilot's estimated time to complete (in minutes, fine to approximate) e.g., 120
 copilotTTC <- NA # insert the co-pilot's estimated time to complete (in minutes, fine to approximate) e.g., 120
 pilotStartDate <- as.Date("10/26/17", format = "%m/%d/%y") # insert the pilot's start date in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
@@ -27,8 +23,6 @@ completionDate <- NA # copilot insert the date of final report completion (after
 -------
   
 #### Methods summary: 
-
-[PILOT/COPILOT write a brief summary of the methods underlying the target outcomes written in your own words]
 
 Mueller et al. 2014 aimed to find out if note-taking medium (longhand or laptop) had an effect on participants' ability to correctly answer factual and conceptual questions. Study 1 asked 67 participants to watch one of five different lectures, perform distractor tasks, and then answer questions about the lecture they viewed. They found that note-taking medium had a significant effect on Conceptual answers but not on Factual answers.
 
@@ -203,13 +197,15 @@ library(lsr)
 data$whichtalk <- as.factor(data$whichtalk)
 ```
 
-#### 1. Factual recall questions ~ condition
+#### 1. Factual-recall questions by condition (laptop or longhand)
+
+The first inferential test is the following (from the article):
 
 > On factual-recall questions, participants performed equally well across conditions (laptop: M = 0.021, SD = 1.31; longhand: M = 0.009, SD = 1.02), F(1, 55) = 0.014, p = .91.
 
-In the paper, they fit an ANOVA with a fixed and a random effect and obtained the following result: F(1,55) = 0.014, p = .91. 
+In the paper, the authors fit an ANOVA with a fixed and a random effect and obtained the following result: F(1,55) = 0.014, p = .91. 
 
-I tried to fit the same model, using the `lmer()` function. The obtained p-value (p = .952) is close to the reported one (p = .91), but the F-value is much lower (F = .0037 vs. F = .014), and using `lmer()` leads to completely differen degrees of freedom.
+I tried to fit the same model, using the `lmer()` function. The obtained p-value (p = .952) is close to the reported one (p = .91), but the F-value is much lower (F = .0037 vs. F = .014), and using `lmer()` leads to completely different degrees of freedom.
 
 ```{r}
 # attempt to fit lmer model
@@ -245,7 +241,7 @@ reportObject <- reproCheck(
 ```
 
 
-#### 2. Conceptual questions ~ condition
+#### 2. Conceptual-application questions by condition
 
 > However, on conceptual-application questions, laptop participants performed significantly worse (M = −0.156, SD = 0.915) than longhand participants (M = 0.154, SD = 1.08), F(1, 55) = 9.99, p = .03, ηp2 = .13 (see Fig. 1).
 
@@ -257,6 +253,7 @@ result2 <- anova(model)
 result2
 ```
 
+The reproduced results are different from the reported results. First, the residual degrees of freedom are different. The authors reported integers, whereas the `lmer()` mixed model resulted in degrees of freedom with decimal numbers. This could indicate that the authors used a different model than was used in this reproducibility attempt, which might also explain the differences in the results.
 
 ```{r}
 # This was an attempt at investigating the eta squared value. I was unable to get the function to work.
@@ -287,7 +284,7 @@ reportObject <- reproCheck(
 ```
 
 
-#### 3. Conceptual questions ~ lecture
+#### 3. Conceptual-application affected by lecture
 
 > Which lecture participants saw also affected performance on conceptual-application questions, F(4, 55) = 12.52, p = .02, ηp2 = .16;
 
@@ -298,6 +295,8 @@ result3 <- summary(aovLecture)
 
 result3
 ```
+
+The reproduced results are different from the reported results. First, the residual degrees of freedom are off. It seems that there were fewer observations in the analysis in the paper. This might explain why this result is different here. The reported result is internally consistent: the reported F value and degrees of freedom are in line with the reported p-value.
 
 ```{r}
 # Check values for ANOVA
@@ -322,15 +321,41 @@ reportObject <- reproCheck(
     valueType = "p")
 ```
 
-#### 4. Conceptual questions ~ lecture
+#### 4. Interaction between lecture and note-taking medium
 
 > [...] however, there was no significant interaction between lecture and note-taking medium, F(4, 55) = 0.164, p = .96.
 
 ```{r}
 # Interaction between lecture (whichtalk) and note-taking medium (condition). 
 aovLectureCondition <- aov(openZ ~ whichtalk * condition, data = data)
-summary(aovLectureCondition)
+result4 <- summary(aovLectureCondition)
 
+result4
+```
+
+Running this ANOVA resulted in the same values as reported in the paper.
+
+```{r}
+# Check values for ANOVA
+ reportObject <- reproCheck(
+    reportedValue = "4",
+    obtainedValue = result4[[1]]["whichtalk:condition", "Df"],
+    valueType = "df")
+
+reportObject <- reproCheck(
+    reportedValue = "55",
+    obtainedValue = result4[[1]]["Residuals", "Df"],
+    valueType = "df")
+
+reportObject <- reproCheck(
+    reportedValue = "0.164",
+    obtainedValue = result4[[1]]["whichtalk:condition", "F value"],
+    valueType = "F")
+
+reportObject <- reproCheck(
+    reportedValue = ".96",
+    obtainedValue = result4[[1]]["whichtalk:condition", "Pr(>F)"],
+    valueType = "p")
 ```
 
 ## Step 5: Conclusion
