@@ -13,11 +13,11 @@ articleID <- "CARPS_1-6-2014_PS" # insert the article ID code here e.g., "10-3-2
 reportType <- "final" # specify whether this is the 'pilot' report or 'final' report
 pilotNames <- "Tysen Dauer, Erik Santoro, Jaclyn Schwartz" # insert the pilot's name here e.g., "Tom Hardwicke".  If there are multiple cpilots enter both names in a character string e.g., "Tom Hardwicke, Bob Dylan"
 copilotNames <- "Michèle Nuijten" # insert the co-pilot's name here e.g., "Michael Frank". If there are multiple co-pilots enter both names in a character string e.g., "Tom Hardwicke, Bob Dylan"
-pilotTTC <- NA # insert the pilot's estimated time to complete (in minutes, fine to approximate) e.g., 120
-copilotTTC <- NA # insert the co-pilot's estimated time to complete (in minutes, fine to approximate) e.g., 120
+pilotTTC <- 525 # insert the pilot's estimated time to complete (in minutes, fine to approximate) e.g., 120
+copilotTTC <- 960 # insert the co-pilot's estimated time to complete (in minutes, fine to approximate) e.g., 120
 pilotStartDate <- as.Date("10/26/17", format = "%m/%d/%y") # insert the pilot's start date in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
 copilotStartDate <- as.Date("07/03/18", format = "%m/%d/%y") # insert the co-pilot's start date in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
-completionDate <- NA # copilot insert the date of final report completion (after any necessary rounds of author assistance) in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
+completionDate <- as.Date("08/29/18", format = "%m/%d/%y") # copilot insert the date of final report completion (after any necessary rounds of author assistance) in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
 ```
 
 -------
@@ -39,20 +39,13 @@ Before reproducing the ANOVAs, I reproduced the means and standard deviations re
 
 #### Target outcomes: 
 
-[PILOT copy and paste the target outcomes identified in targetOutcomes.md]  
-
 For this article you should focus on the findings reported for Study 1 in section "Laptop versus longhand performance".
 
 Specifically, you should attempt to reproduce all descriptive and inferential analyses reported in the text below and associated tables/figures:
 
 > Laptop versus longhand performance. Mixed fixed and random-effects analyses of variance were used to test differences, with note-taking medium (laptop vs.longhand) as a fixed effect and lecture (which talk was viewed) as a random effect. We converted the raw data to z scores because the lecture assessments varied in difficulty and number of points available; however, results did not differ when raw scores were analyzed.4 On factual-recall questions, participants performed equally well across conditions (laptop: M = 0.021, SD = 1.31; longhand: M = 0.009, SD = 1.02), F(1, 55) = 0.014, p = .91. However, on conceptual-application questions, laptop participants performed significantly worse (M = −0.156, SD = 0.915) than longhand participants (M = 0.154, SD = 1.08), F(1, 55) = 9.99, p = .03, ηp2 = .13 (see Fig. 1).5 Which lecture participants saw also affected performance on conceptual-application questions, F(4, 55) = 12.52, p = .02, ηp2 = .16; however, there was no significant interaction between lecture and note-taking medium, F(4, 55) = 0.164, p = .96. (from Mueller & Oppenheimer, 2014, p. 1161)
 
-**Note**
-Make sure to use the original article for additional context and information about any necessary pre-processing steps. Also check for additional supplementary materials that may provide supporting documentation for analysis procedures. 
-
 ------
-
-[PILOT/COPILOT DO NOT CHANGE THE CODE IN THE CHUNK BELOW]  
 
 ```{r global_options, include=FALSE}
 knitr::opts_chunk$set(echo=TRUE, warning=FALSE, message=FALSE)
@@ -60,16 +53,19 @@ knitr::opts_chunk$set(echo=TRUE, warning=FALSE, message=FALSE)
 
 ## Step 1: Load packages
 
-[PILOT/COPILOT Some useful packages are being loaded below. You can add any additional ones you might need too.]
-
 ```{r}
 library(tidyverse) # for data munging
 library(knitr) # for kable table formating
 library(haven) # import and export 'SPSS', 'Stata' and 'SAS' Files
 library(CARPSreports) # custom report functions
-```
 
-[PILOT/COPILOT DO NOT MAKE CHANGES TO THE CODE CHUNK BELOW]
+# Libraries needed for ANOVA tests.
+library(car)
+library(lme4)
+library(Matrix)
+library(lmerTest)
+library(lsr)
+```
 
 ```{r}
 # Prepare report object. This will be updated automatically by the reproCheck function each time values are compared
@@ -116,6 +112,8 @@ descriptives$reportedValue <-  c(0.021, 0.009, -0.156, 0.154,
 
 ```
 
+It seems that the standard deviation of the objective questions is off. I get 0.9965552 and they report 1.31. Otherwise these numbers are correct.
+
 ```{r}
 for(i in 1:nrow(descriptives)){
   reportObject <- reproCheck(
@@ -125,7 +123,7 @@ for(i in 1:nrow(descriptives)){
 }
 ```
 
-I also found their reported Raw Means for Study 1 and calculated them for comparison (these raw numbers are reported in the "Supplemental Material" folder, the file is named *Raw_Means_and_Questions.pdf). See also the screenshot of these tables below.
+I also found the reported Raw Means for Study 1 and calculated them for comparison (these raw numbers are reported in the "Supplemental Material" folder, the file is named *Raw_Means_and_Questions.pdf). See also the screenshot of these tables below.
 
  ![](screenshotRawMeansPerTalk.png)
 
@@ -142,6 +140,7 @@ raw_means <- data_tidy_rawscores %>%
             sd = sd(raw_score)) %>%
   gather("statistic", "value", mean, sd)
 
+# copy reported means from supplemental table
 raw_means$reportedValue <- c(6.33, 4.80, 5.00, 7.67, 4.17,
                              8.75,6.25, 3.67, 8.50, 4.17,
                              3.50, 3.40, 4.38, 3.83, 3.50,
@@ -172,7 +171,7 @@ Maybe they removed some subjects at this stage that make the standard deviation 
 
 There is mention in the "Study 1 Participants" section of the paper of removing two participants. Those excluded participants seem not to be included in their public data (they report 67 participants minus the 2 = 65 participants, the number in their public data). I found no other mention of excluded data or differently aggregated data in the paper or supplemental materials.
 
-I note the errors below but will not include them in the final count since they are not the Target Outcomes.
+Note that the discrepancies in these supplemental descriptives are now also included in the final count, even they are not directly the target outcomes.
 
 ```{r}
 for(i in 1:nrow(raw_means)){
@@ -186,13 +185,6 @@ for(i in 1:nrow(raw_means)){
 ### Inferential statistics
 
 ```{r}
-# Libraries needed for ANOVA tests.
-library(car)
-library(lme4)
-library(Matrix)
-library(lmerTest)
-library(lsr)
-
 # Make sure that whichtalk is read as a factor variable
 data$whichtalk <- as.factor(data$whichtalk)
 ```
@@ -360,15 +352,11 @@ reportObject <- reproCheck(
 
 ## Step 5: Conclusion
 
-[Please include a text summary describing your findings. If this reproducibility check was a failure, you should note any suggestions as to what you think the likely cause(s) might be.]
-
 The reported ANOVAs were the main findings. We encountered major errors already at the descriptive statistics stage. Hopefully these can be easily resolved by contacting the authors to find out what additional data processing, cleaning, or exclusions might be causing these differences. 
 
 The innaccurate ANOVA findings recorded here (including the difference in reported degrees of freedom) may arise for the following reasons: the underlying data differences just described, incorrect R scripts for the ANOVAs reported in the article, or they may actually be different. The time to complete is possibly unusually long because I had not previously run mixed-effects ANOVAs and needed time and assistance implementing them in R. 
 
 Interestingly, a quick statcheck analysis showed that only one result was inconsistently reported (F(1, 55) = 9.99, p = .03; calcualted p = .003).
-
-[PILOT/COPILOT ENTER RELEVANT INFORMATION BELOW]
 
 ```{r}
 Author_Assistance = FALSE # was author assistance provided? (if so, enter TRUE)
@@ -377,9 +365,9 @@ Insufficient_Information_Errors <- 0 # how many discrete insufficient informatio
 
 # Assess the causal locus (discrete reproducibility issues) of any reproducibility errors. Note that there doesn't necessarily have to be a one-to-one correspondance between discrete reproducibility issues and reproducibility errors. For example, it could be that the original article neglects to mention that a Greenhouse-Geisser correct was applied to ANOVA outcomes. This might result in multiple reproducibility errors, but there is a single causal locus (discrete reproducibility issue).
 
-locus_typo <- NA # how many discrete issues did you encounter that related to typographical errors?
-locus_specification <- NA # how many discrete issues did you encounter that related to incomplete, incorrect, or unclear specification of the original analyses?
-locus_analysis <- NA # how many discrete issues did you encounter that related to errors in the authors' original analyses?
+locus_typo <- 0 # how many discrete issues did you encounter that related to typographical errors?
+locus_specification <- 0 # how many discrete issues did you encounter that related to incomplete, incorrect, or unclear specification of the original analyses?
+locus_analysis <- 11 # how many discrete issues did you encounter that related to errors in the authors' original analyses?
 locus_data <- NA # how many discrete issues did you encounter that related to errors in the data files shared by the authors?
 locus_unidentified <- NA # how many discrete issues were there for which you could not identify the cause
 
@@ -390,10 +378,8 @@ locus_analysis_resolved <- NA # how many discrete issues did you encounter that 
 locus_data_resolved <- NA # how many discrete issues did you encounter that related to errors in the data files shared by the authors?
 locus_unidentified_resolved <- NA # how many discrete issues were there for which you could not identify the cause
 
-Affects_Conclusion <- NA # Do any reproducibility issues encounter appear to affect the conclusions made in the original article? TRUE, FALSE, or NA. This is a subjective judgement, but you should taking into account multiple factors, such as the presence/absence of decision errors, the number of target outcomes that could not be reproduced, the type of outcomes that could or could not be reproduced, the difference in magnitude of effect sizes, and the predictions of the specific hypothesis under scrutiny.
+Affects_Conclusion <- 2 # Do any reproducibility issues encounter appear to affect the conclusions made in the original article? TRUE, FALSE, or NA. This is a subjective judgement, but you should taking into account multiple factors, such as the presence/absence of decision errors, the number of target outcomes that could not be reproduced, the type of outcomes that could or could not be reproduced, the difference in magnitude of effect sizes, and the predictions of the specific hypothesis under scrutiny.
 ```
-
-[PILOT/COPILOT DOD NOT EDIT THE CODE CHUNK BELOW]
 
 ```{r}
 reportObject <- reportObject %>%
@@ -428,17 +414,6 @@ if(reportType == "final"){
   write_csv(reportObject, "finalReportDetailed.csv")
   write_csv(reportExtras, "finalReportExtras.csv")
 }
-```
-
-
-```{r}
-#carpsReport(Report_Type = "pilot",
- #           Article_ID = "CARPS_1-6-2014_PS",
-  #          Insufficient_Information_Errors = 0,
-   #         Decision_Errors = 0,
-    #        Major_Numerical_Errors = 3,
-     #       Time_to_Complete = 525,
-      #      Author_Assistance = FALSE)
 ```
 
 # Session information
