@@ -230,10 +230,10 @@ reportType &lt;- &quot;final&quot; # specify whether this is the 'pilot' report 
 pilotNames &lt;- &quot;Tysen Dauer, Erik Santoro, Jaclyn Schwartz&quot; # insert the pilot's name here e.g., &quot;Tom Hardwicke&quot;.  If there are multiple cpilots enter both names in a character string e.g., &quot;Tom Hardwicke, Bob Dylan&quot;
 copilotNames &lt;- &quot;Michèle Nuijten&quot; # insert the co-pilot's name here e.g., &quot;Michael Frank&quot;. If there are multiple co-pilots enter both names in a character string e.g., &quot;Tom Hardwicke, Bob Dylan&quot;
 pilotTTC &lt;- 525 # insert the pilot's estimated time to complete (in minutes, fine to approximate) e.g., 120
-copilotTTC &lt;- NA # insert the co-pilot's estimated time to complete (in minutes, fine to approximate) e.g., 120
+copilotTTC &lt;- 1260 # insert the co-pilot's estimated time to complete (in minutes, fine to approximate) e.g., 120
 pilotStartDate &lt;- as.Date(&quot;10/26/17&quot;, format = &quot;%m/%d/%y&quot;) # insert the pilot's start date in US format e.g., as.Date(&quot;01/25/18&quot;, format = &quot;%m/%d/%y&quot;)
 copilotStartDate &lt;- as.Date(&quot;07/03/18&quot;, format = &quot;%m/%d/%y&quot;) # insert the co-pilot's start date in US format e.g., as.Date(&quot;01/25/18&quot;, format = &quot;%m/%d/%y&quot;)
-completionDate &lt;- as.Date(&quot;&quot;, format = &quot;%m/%d/%y&quot;) # copilot insert the date of final report completion (after any necessary rounds of author assistance) in US format e.g., as.Date(&quot;01/25/18&quot;, format = &quot;%m/%d/%y&quot;)</code></pre>
+completionDate &lt;- as.Date(&quot;11/07/18&quot;, format = &quot;%m/%d/%y&quot;) # copilot insert the date of final report completion (after any necessary rounds of author assistance) in US format e.g., as.Date(&quot;01/25/18&quot;, format = &quot;%m/%d/%y&quot;)</code></pre>
 <hr />
 <div id="methods-summary" class="section level4">
 <h4>Methods summary:</h4>
@@ -258,7 +258,6 @@ completionDate &lt;- as.Date(&quot;&quot;, format = &quot;%m/%d/%y&quot;) # copi
 </div>
 <div id="step-1-load-packages-and-prepare-report-object" class="section level1">
 <h1>Step 1: Load packages and prepare report object</h1>
-<p>[PILOT/COPILOT Some useful packages are being loaded below. You can add any additional ones you might need too.]</p>
 <pre class="r"><code># load packages
 library(tidyverse) # for data munging
 library(knitr) # for kable table formating
