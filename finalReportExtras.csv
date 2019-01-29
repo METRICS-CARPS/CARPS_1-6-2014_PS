@@ -1,0 +1,2 @@
+articleID,pilotNames,copilotNames,pilotTTC,copilotTTC,pilotStartDate,copilotStartDate,completionDate,Author_Assistance,finalOutcome,Insufficient_Information_Errors,locus_typo,locus_specification,locus_analysis,locus_data,locus_unidentified,locus_typo_resolved,locus_specification_resolved,locus_analysis_resolved,locus_data_resolved,locus_unidentified_resolved
+CARPS_1-6-2014_PS,"Tysen Dauer, Erik Santoro, Jaclyn Schwartz",Michèle Nuijten,525,1260,2017-10-26,2018-07-03,2018-11-07,FALSE,Failure without author assistance,0,1,NA,NA,NA,NA,NA,NA,NA,NA,NA
