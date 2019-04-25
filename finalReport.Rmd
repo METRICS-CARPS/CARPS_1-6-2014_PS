@@ -14,10 +14,10 @@ reportType <- "final" # specify whether this is the 'pilot' report or 'final' re
 pilotNames <- "Tysen Dauer, Erik Santoro, Jaclyn Schwartz" # insert the pilot's name here e.g., "Tom Hardwicke".  If there are multiple cpilots enter both names in a character string e.g., "Tom Hardwicke, Bob Dylan"
 copilotNames <- "Michèle Nuijten" # insert the co-pilot's name here e.g., "Michael Frank". If there are multiple co-pilots enter both names in a character string e.g., "Tom Hardwicke, Bob Dylan"
 pilotTTC <- 525 # insert the pilot's estimated time to complete (in minutes, fine to approximate) e.g., 120
-copilotTTC <- 1260 # insert the co-pilot's estimated time to complete (in minutes, fine to approximate) e.g., 120
+copilotTTC <- 1280 # insert the co-pilot's estimated time to complete (in minutes, fine to approximate) e.g., 120
 pilotStartDate <- as.Date("10/26/17", format = "%m/%d/%y") # insert the pilot's start date in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
 copilotStartDate <- as.Date("07/03/18", format = "%m/%d/%y") # insert the co-pilot's start date in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
-completionDate <- as.Date("11/07/18", format = "%m/%d/%y") # copilot insert the date of final report completion (after any necessary rounds of author assistance) in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
+completionDate <- as.Date("", format = "%m/%d/%y") # copilot insert the date of final report completion (after any necessary rounds of author assistance) in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
 ```
 
 ------
@@ -41,12 +41,11 @@ In the corrigendum they also list corrected degrees of freedom.
 
 #### Target outcomes: 
 
-For this article you should focus on the findings reported for Study 1 in section "Laptop versus longhand performance".
+For this article you should focus on the findings reported for Study 1 in section "Laptop versus longhand performance". You should use the values reported in the the corrigendum, not the main paper.
 
 Specifically, you should attempt to reproduce all descriptive and inferential analyses reported in the text below and associated tables/figures:
 
 > Laptop versus longhand performance. Mixed fixed and random-effects analyses of variance were used to test differences, with note-taking medium (laptop vs.longhand) as a fixed effect and lecture (which talk was viewed) as a random effect. We converted the raw data to z scores because the lecture assessments varied in difficulty and number of points available; however, results did not differ when raw scores were analyzed. (from Mueller & Oppenheimer, 2014, p. 1161) 
-
 
 > On factual-recall questions, participants performed equally well across conditions (laptop: M = −0.006, SD = 1.00; longhand: M = 0.05, SD = 1.01), F(1,4.01) = 0.046, p = .841. However, on conceptual application questions, laptop participants performed significantly worse (M = −0.178, SD = 0.900) than longhand participants (M = 0.162, SD = 1.07), F(1, 4.09) = 8.05, p = .046, ηp 2 = .66 (see Fig. 1). Which lecture participants saw also affected performance on conceptual-application questions, F(4, 4) = 7.11, p = .042, ηp2 = .88; however, there was no significant interaction between lectureand note-taking medium, F(4, 55) = 0.259, p = .90. (from Mueller & Oppenheimer, corrigendum, 2018, p. 1-2)
 
@@ -90,7 +89,7 @@ Only select relevant variables.
 
 ```{r}
 data_tidy <- data %>%
-  rename("participant" = "ï..participant") %>%
+  #rename("participant" = "ï..participant") %>%
   select(participant, LapLong, whichtalk, ZFindexA:ZCrawW) %>%
   as.tibble()
 ```
@@ -145,6 +144,7 @@ final_descriptives$reportedValue <-  c(-0.006, 0.05,
                                  -0.178, 0.162,
                                  0.900, 1.07)
 ```
+
 It seems that the mean in the longhand condition on factual recall scores is off by a factor ten. If we look at the full list of means and standard deviations of the z-scores, it is imaginable that the authors copied the z-score *within*, `ZFindexW`. This does not seem to affect the substantive conclusion, though.
 
 ```{r}
@@ -307,7 +307,6 @@ reportObject <- reproCheck(
 > however, there was no significant interaction between lectureand note-taking medium, F(4, 55) = 0.259, p = .90.
 
 Again, the same SPSS syntax and accompanying results are relevant for this analysis. All numbers seem to match the output.
-
 
 ```{r}
 # Check values for ANOVA
