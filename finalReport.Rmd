@@ -17,7 +17,7 @@ pilotTTC <- 525 # insert the pilot's estimated time to complete (in minutes, fin
 copilotTTC <- 1280 # insert the co-pilot's estimated time to complete (in minutes, fine to approximate) e.g., 120
 pilotStartDate <- as.Date("10/26/17", format = "%m/%d/%y") # insert the pilot's start date in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
 copilotStartDate <- as.Date("07/03/18", format = "%m/%d/%y") # insert the co-pilot's start date in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
-completionDate <- as.Date("", format = "%m/%d/%y") # copilot insert the date of final report completion (after any necessary rounds of author assistance) in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
+completionDate <- as.Date("05/02/18", format = "%m/%d/%y") # copilot insert the date of final report completion (after any necessary rounds of author assistance) in US format e.g., as.Date("01/25/18", format = "%m/%d/%y")
 ```
 
 ------
@@ -335,10 +335,12 @@ reportObject <- reproCheck(
 
 In this reproducibility analysis, I was not able to run the correct analyses using R. However, the authors provided all SPSS syntax for the analyses, so I ran all relevant analyses in SPSS. The descriptives were calculated using R.
 
-All inferential statistics seem to reproduce in SPSS. Only in the descriptives did I find a mismatch: a reported mean of .05, which in fact was .005. I consider it likely that the authors either made a typo, or copied the wrong number from a table with all descriptives (another mean was in fact .05). This error does not seem to affect the conclusions.
+All inferential statistics seem to reproduce in SPSS. Only in the descriptives did I find a mismatch: a reported mean of .05, which according to our analysis is .005. The value also seems to be 0.005 in Figure 1 of the corrigendum. I consider it likely that the authors either made a typo, or copied the wrong number from a table with all descriptives (another mean was in fact .05). This error does not seem to affect the conclusions.
+
+Update: we contacted one of the authors and they confirmed that it is a typo. 0.005 is the correct value.
 
 ```{r}
-Author_Assistance = FALSE # was author assistance provided? (if so, enter TRUE)
+Author_Assistance = TRUE # was author assistance provided? (if so, enter TRUE)
 
 Insufficient_Information_Errors <- 0 # how many discrete insufficient information issues did you encounter?
 
@@ -368,7 +370,7 @@ reportObject <- reportObject %>%
   select(articleID, everything()) # make articleID first column
 
 # decide on final outcome
-if(any(reportObject$comparisonOutcome %in% c("MAJOR_ERROR", "DECISION_ERROR")) | Insufficient_Information_Errors > 0){
+if(any(!(reportObject$comparisonOutcome %in% c("MATCH", "MINOR_ERROR"))) | Insufficient_Information_Errors > 0){
   finalOutcome <- "Failure without author assistance"
   if(Author_Assistance == T){
     finalOutcome <- "Failure despite author assistance"
@@ -396,8 +398,6 @@ if(reportType == "final"){
 ```
 
 # Session information
-
-[This function will output information about the package versions used in this report:]
 
 ```{r session_info, include=TRUE, echo=TRUE, results='markup'}
 devtools::session_info()
